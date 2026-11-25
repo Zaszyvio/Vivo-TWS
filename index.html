@@ -4,364 +4,797 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <title>门店管理 App</title>
+  <title>门店管理 Liquid Glass</title>
   <style>
     :root {
-      --bg: #f4f6f9;
-      --card: #ffffff;
-      --primary: #1677ff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --success: #16a34a;
-      --warn: #d97706;
+      --primary: #007aff;
+      --text: #0f172a;
+      --muted: #475569;
+      --glass-bg: linear-gradient(135deg, rgba(255,255,255,0.68) 0%, rgba(255,255,255,0.34) 100%);
+      --glass-border: rgba(255, 255, 255, 0.82);
+      --glass-shadow: 0 10px 30px rgba(15, 23, 42, 0.08), inset 0 1.5px 1px rgba(255, 255, 255, 0.95);
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
       color: var(--text);
-      padding-bottom: 76px;
+      min-height: 100vh;
+      padding-bottom: 110px;
+      background:
+        radial-gradient(circle at 12% 10%, rgba(56, 189, 248, 0.35) 0%, transparent 42%),
+        radial-gradient(circle at 88% 18%, rgba(168, 85, 247, 0.28) 0%, transparent 45%),
+        radial-gradient(circle at 20% 85%, rgba(52, 211, 153, 0.28) 0%, transparent 45%),
+        radial-gradient(circle at 85% 90%, rgba(59, 130, 246, 0.3) 0%, transparent 45%),
+        #dfe8f4;
+      background-attachment: fixed;
     }
+
+    /* 通用液态玻璃面板 */
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(26px) saturate(195%) brightness(1.04);
+      -webkit-backdrop-filter: blur(26px) saturate(195%) brightness(1.04);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+    }
+
     header {
-      background: var(--card);
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 20;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.75);
+      border-radius: 0 0 20px 20px;
+    }
+    header h1 { font-size: 17px; margin: 0; font-weight: 700; letter-spacing: -0.2px; }
+    .manager-pill {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(0, 122, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      color: #0056b3;
+      font-weight: 700;
+    }
+
+    .container { padding: 14px; max-width: 640px; margin: 0 auto; }
+    .card {
+      border-radius: 22px;
+      padding: 15px;
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0 0 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    header h1 { font-size: 18px; margin: 0; }
-    .role-badge {
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #e0f2fe;
-      color: #0369a1;
-      font-weight: 600;
-    }
-    .container { padding: 14px; max-width: 680px; margin: 0 auto; }
-    .card {
-      background: var(--card);
-      border-radius: 12px;
-      padding: 14px;
+
+    /* 账号切换胶囊栏 */
+    .account-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
       margin-bottom: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-    .card h2 { font-size: 15px; margin: 0 0 10px; }
-    .row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-    input, select, button {
-      font-size: 14px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-    input, select { flex: 1; min-width: 110px; background: #fff; }
-    button {
-      background: var(--primary);
-      color: #fff;
-      border: none;
+    .acc-btn {
+      padding: 8px 4px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.75);
+      background: rgba(255,255,255,0.42);
+      color: var(--text);
+      font-size: 12px;
       font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .acc-btn.active {
+      background: linear-gradient(180deg, rgba(0,122,255,0.9), rgba(0,95,210,0.92));
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+    }
+
+    /* 日历样式 */
+    .cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .cal-nav {
+      background: rgba(255,255,255,0.65);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 10px;
+      padding: 4px 10px;
+      font-weight: 700;
       cursor: pointer;
     }
-    button.secondary { background: #eef2ff; color: #3730a3; }
-    button.success { background: var(--success); }
-    button.small { padding: 6px 10px; font-size: 12px; }
-    .shift-item, .inv-item {
+    .cal-weekdays, .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      text-align: center;
+    }
+    .cal-weekdays div {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      padding-bottom: 4px;
+    }
+    .cal-day {
+      aspect-ratio: 1 / 1.08;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.42);
+      border: 1px solid rgba(255,255,255,0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      padding: 2px;
+    }
+    .cal-day.empty { background: transparent; border: none; cursor: default; }
+    .cal-day.selected {
+      background: rgba(0, 122, 255, 0.2);
+      border: 1.5px solid var(--primary);
+      box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.14);
+    }
+    .cal-day.today { text-decoration: underline; }
+    .shift-dot {
+      font-size: 9px;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 6px;
+      margin-top: 3px;
+      color: #fff;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* 班次颜色 */
+    .bg-morning { background: #0284c7; }
+    .bg-evening { background: #7c3aed; }
+    .bg-offday { background: #64748b; }
+    .bg-unpaid { background: #ea580c; }
+    .bg-annual { background: #16a34a; }
+    .bg-training { background: #db2777; }
+
+    /* 员工名字编辑区 */
+    .name-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .name-box {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .name-box label { font-size: 11px; color: var(--muted); font-weight: 600; }
+
+    input, select, button {
+      font-size: 13px;
+      padding: 9px 11px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.65);
+      color: var(--text);
+      outline: none;
+    }
+    button.primary {
+      background: linear-gradient(180deg, #0a84ff, #0066d6);
+      color: #fff;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.4);
+      cursor: pointer;
+    }
+
+    /* 班次选择按钮组 */
+    .shift-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .shift-choice {
+      padding: 10px 6px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.58);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .shift-choice .swatch {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+
+    /* 店长专属统计看板 */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .stat-item {
+      background: rgba(255,255,255,0.48);
+      border: 1px solid rgba(255,255,255,0.75);
+      border-radius: 14px;
+      padding: 10px;
+      font-size: 12px;
+    }
+    .stat-item strong { display: block; font-size: 14px; margin-bottom: 4px; }
+
+    /* Stock 点货样式 */
+    .row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .row input { flex: 1; min-width: 100px; }
+    .stock-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 10px 0;
-      border-bottom: 1px solid #f1f5f9;
+      border-bottom: 1px solid rgba(255,255,255,0.55);
+      gap: 8px;
     }
-    .shift-item:last-child, .inv-item:last-child { border-bottom: none; }
-    .tag {
-      font-size: 12px;
-      padding: 2px 8px;
-      border-radius: 6px;
-      background: #f3f4f6;
-      margin-left: 6px;
+    .stock-item:last-child { border-bottom: none; }
+    .qty-controls { display: flex; align-items: center; gap: 5px; }
+    .btn-sell {
+      background: rgba(239, 68, 68, 0.16);
+      color: #b91c1c;
+      font-weight: 700;
+      padding: 6px 9px;
+      border-radius: 10px;
+      cursor: pointer;
     }
-    .cctv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .cctv-btn {
-      padding: 16px 12px;
-      border-radius: 12px;
-      background: #111827;
+    .btn-in {
+      background: rgba(22, 163, 74, 0.18);
+      color: #15803d;
+      font-weight: 700;
+      padding: 6px 9px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .qty-num { min-width: 34px; text-align: center; font-weight: 800; font-size: 15px; }
+
+    /* CCTV 按钮 */
+    .cctv-card-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(15,23,42,0.85), rgba(30,41,59,0.82));
       color: #fff;
-      text-align: center;
-      font-size: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 液态玻璃底部悬浮选择框 */
+    .tab-bar-wrap {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 28px);
+      max-width: 420px;
+      z-index: 40;
     }
     .tab-bar {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: var(--card);
-      border-top: 1px solid var(--border);
+      position: relative;
       display: flex;
-      z-index: 20;
+      padding: 6px;
+      border-radius: 999px;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.72) 0%,
+        rgba(255, 255, 255, 0.32) 50%,
+        rgba(255, 255, 255, 0.62) 100%
+      );
+      backdrop-filter: blur(30px) saturate(220%) brightness(1.08);
+      -webkit-backdrop-filter: blur(30px) saturate(220%) brightness(1.08);
+      border: 1.2px solid rgba(255, 255, 255, 0.9);
+      box-shadow:
+        0 16px 36px rgba(15, 23, 42, 0.16),
+        inset 0 2px 2px rgba(255, 255, 255, 1),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.06);
+    }
+    .tab-indicator {
+      position: absolute;
+      top: 6px;
+      bottom: 6px;
+      left: 6px;
+      width: calc((100% - 12px) / 3);
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.6) 100%);
+      border: 1px solid rgba(255,255,255,1);
+      box-shadow: 0 4px 14px rgba(0, 122, 255, 0.2), inset 0 1px 1px #fff;
+      transition: transform 0.35s cubic-bezier(0.22, 1.25, 0.36, 1);
+      pointer-events: none;
     }
     .tab-btn {
+      position: relative;
+      z-index: 1;
       flex: 1;
-      background: none;
+      background: transparent !important;
+      border: none !important;
       color: var(--muted);
-      border-radius: 0;
-      padding: 10px 4px;
-      font-size: 12px;
+      padding: 7px 4px;
+      font-size: 11px;
+      font-weight: 700;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 2px;
+      cursor: pointer;
     }
-    .tab-btn.active { color: var(--primary); background: #eff6ff; }
-    .hidden { display: none; }
-    .hint { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .tab-btn .icon { font-size: 18px; }
+    .tab-btn.active { color: var(--primary); }
+    .hidden { display: none !important; }
+    .hint { font-size: 12px; color: var(--muted); line-height: 1.45; margin: 6px 0 0; }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>🏪 门店管理助手</h1>
-    <span class="role-badge" id="statusText">本地模式</span>
+  <header class="glass">
+    <h1>🏪 门店管理</h1>
+    <span class="manager-pill" id="headerBadge">👑 店长视角</span>
   </header>
 
-  <!-- Tab 1: 时间表 -->
+  <!-- ==================== 1. 时间表 ==================== -->
   <div class="container" id="tab-schedule">
-    <div class="card">
-      <h2>新增排班（你 / 员工）</h2>
-      <div class="row">
-        <input type="text" id="staffName" placeholder="姓名（如：老板 / 阿明）" />
-        <input type="date" id="shiftDate" />
+
+    <!-- 账号切换：我（店长）+ 3位员工 -->
+    <div class="account-bar" id="accountBar"></div>
+
+    <!-- (1) 日历在最上面 -->
+    <div class="card glass">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+        <strong id="calMonthTitle" style="font-size:15px;">2026年 11月</strong>
+        <button class="cal-nav" onclick="changeMonth(1)">›</button>
       </div>
-      <div class="row">
-        <select id="shiftType">
-          <option value="早班 09:00-17:00">早班 09:00-17:00</option>
-          <option value="晚班 14:00-22:00">晚班 14:00-22:00</option>
-          <option value="全天 10:00-21:00">全天 10:00-21:00</option>
-          <option value="休息">休息</option>
-        </select>
-        <button onclick="addShift()">添加</button>
+      <div class="cal-weekdays">
+        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <p class="hint" id="selectedDateInfo">当前选中日期：-</p>
+    </div>
+
+    <!-- (2) 名字我自己放（放在日历下面：1个店长 + 3个员工） -->
+    <div class="card glass">
+      <div class="card-title">
+        <span>👤 人员名字设置（店长 + 3名员工）</span>
+        <button class="primary" style="padding:5px 10px;font-size:12px;" onclick="saveNames()">保存名字</button>
+      </div>
+      <div class="name-grid">
+        <div class="name-box">
+          <label>我的名字（店长）</label>
+          <input type="text" id="name_0" placeholder="输入你的名字" />
+        </div>
+        <div class="name-box">
+          <label>员工 1</label>
+          <input type="text" id="name_1" placeholder="输入员工1名字" />
+        </div>
+        <div class="name-box">
+          <label>员工 2</label>
+          <input type="text" id="name_2" placeholder="输入员工2名字" />
+        </div>
+        <div class="name-box">
+          <label>员工 3</label>
+          <input type="text" id="name_3" placeholder="输入员工3名字" />
+        </div>
       </div>
     </div>
 
-    <div class="card">
-      <h2>排班表</h2>
-      <div id="shiftList"></div>
+    <!-- (3) 班次选择（放在名字下面） -->
+    <div class="card glass">
+      <div class="card-title">
+        <span>🕒 选择班次（点选即排入上方选中日期）</span>
+        <button style="padding:4px 8px;font-size:11px;" onclick="setShift('')">清除当天</button>
+      </div>
+      <div class="shift-options">
+        <button class="shift-choice" onclick="setShift('早班')"><span class="swatch bg-morning"></span>早班</button>
+        <button class="shift-choice" onclick="setShift('晚班')"><span class="swatch bg-evening"></span>晚班</button>
+        <button class="shift-choice" onclick="setShift('offday')"><span class="swatch bg-offday"></span>Offday</button>
+        <button class="shift-choice" onclick="setShift('unpaid leave')"><span class="swatch bg-unpaid"></span>Unpaid Leave</button>
+        <button class="shift-choice" onclick="setShift('annual leave')"><span class="swatch bg-annual"></span>Annual Leave</button>
+        <button class="shift-choice" onclick="setShift('training')"><span class="swatch bg-training"></span>Training</button>
+      </div>
+    </div>
+
+    <!-- (8) 店长专属更多资讯看板（仅切换至店长账号时展示） -->
+    <div class="card glass" id="managerDashboard">
+      <div class="card-title">
+        <span>📊 店长总览（全店排班与工时统计）</span>
+      </div>
+      <div id="todayAllStaff" style="font-size:12px;margin-bottom:10px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,0.5);"></div>
+      <div class="stats-grid" id="monthlyStatsGrid"></div>
+    </div>
+
+  </div>
+
+  <!-- ==================== 2. Stock（点货与 Sheets 同步） ==================== -->
+  <div class="container hidden" id="tab-stock">
+    <div class="card glass">
+      <div class="card-title"><span>🔗 Google Sheets 同步接口</span></div>
+      <div class="row">
+        <input type="url" id="sheetUrlInput" placeholder="粘贴你的 Google Apps Script 链接" />
+        <button class="primary" onclick="saveSheetUrl()">保存</button>
+      </div>
+      <div class="row" style="margin-bottom:0;">
+        <button style="flex:1;font-weight:700;" onclick="pullFromSheet()">⬇️ 从 Sheet 拉取最新货单</button>
+        <button class="primary" style="flex:1;" onclick="pushToSheet('全量盘点同步')">⬆️ 同步到 Sheet</button>
+      </div>
+      <p class="hint" id="stockSyncMsg">状态：本地已就绪（卖出减库存、进货加库存后会自动记录并同步）。</p>
+    </div>
+
+    <div class="card glass">
+      <div class="card-title"><span>➕ 新增货品</span></div>
+      <div class="row" style="margin-bottom:0;">
+        <input type="text" id="newItemName" placeholder="货品名称" />
+        <input type="number" id="newItemQty" placeholder="初始数量" style="max-width:100px;" />
+        <button class="primary" onclick="addStockItem()">添加</button>
+      </div>
+    </div>
+
+    <div class="card glass">
+      <div class="card-title"><span>📦 店内 Stock 清单（卖了减 / 进货加）</span></div>
+      <div id="stockList"></div>
     </div>
   </div>
 
-  <!-- Tab 2: 点货 & 同步 Form -->
-  <div class="container hidden" id="tab-inventory">
-    <div class="card">
-      <h2>添加货品</h2>
-      <div class="row">
-        <input type="text" id="itemName" placeholder="货品名称（如：矿泉水）" />
-        <input type="number" id="itemQty" placeholder="当前数量" style="max-width:110px;" />
-        <button onclick="addItem()">加入</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>今日点货清单</h2>
-      <div id="inventoryList"></div>
-      <div class="row" style="margin-top:12px;">
-        <button class="success" style="flex:1;" onclick="syncToForm()">📤 同步点货数据到 Form</button>
-      </div>
-      <p class="hint" id="syncStatus">提示：当前为本地保存。填入下方 Form/Google Sheets  Webhook 地址后可一键同步。</p>
-    </div>
-
-    <div class="card">
-      <h2>Form 同步设置</h2>
-      <div class="row">
-        <input type="url" id="webhookUrl" placeholder="粘贴 Google Apps Script / Form 接口链接" />
-        <button class="secondary" onclick="saveWebhook()">保存</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tab 3: CCTV 联动 -->
+  <!-- ==================== 3. CCTV（TP-Link） ==================== -->
   <div class="container hidden" id="tab-cctv">
-    <div class="card">
-      <h2>打开监控 App</h2>
-      <p class="hint">点击下方按钮会尝试直接唤醒手机里已安装的监控 App（若无法唤起，请先在下方设置对应协议或网页监控地址）。</p>
-      <div class="cctv-grid" style="margin-top:10px;">
-        <button class="cctv-btn" onclick="openApp('hikconnect://')">📹 Hik-Connect</button>
-        <button class="cctv-btn" onclick="openApp('dmss://')">📹 DMSS</button>
-        <button class="cctv-btn" onclick="openApp('tapo://')">📹 TP-Link Tapo</button>
-        <button class="cctv-btn" onclick="openCustomCctv()">⚙️ 自定义监控入口</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>自定义 CCTV 链接 / 协议</h2>
-      <div class="row">
-        <input type="text" id="customCctvInput" placeholder="如：hikconnect:// 或 https://你的监控网页" />
-        <button class="secondary" onclick="saveCustomCctv()">保存</button>
-      </div>
+    <div class="card glass">
+      <div class="card-title"><span>📹 TP-Link 监控快捷入口</span></div>
+      <button class="cctv-card-btn" onclick="openCctv('tapo://')">
+        <span>TP-Link Tapo</span><span>打开 ›</span>
+      </button>
+      <button class="cctv-card-btn" onclick="openCctv('vigi://')">
+        <span>TP-Link VIGI</span><span>打开 ›</span>
+      </button>
+      <p class="hint">下一步等你的界面跑通后，我教你如何配置与你手机上 TP-Link App 的直连方式。</p>
     </div>
   </div>
 
-  <!-- 底部导航栏 -->
-  <nav class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('schedule', this)">📅<span>时间表</span></button>
-    <button class="tab-btn" onclick="switchTab('inventory', this)">📦<span>点货同步</span></button>
-    <button class="tab-btn" onclick="switchTab('cctv', this)">📷<span>CCTV</span></button>
-  </nav>
+  <!-- 底部液态玻璃悬浮选择框 -->
+  <div class="tab-bar-wrap">
+    <nav class="tab-bar">
+      <div class="tab-indicator" id="tabIndicator"></div>
+      <button class="tab-btn active" onclick="switchTab('schedule', 0, this)">
+        <span class="icon">📅</span><span>时间表</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('stock', 1, this)">
+        <span class="icon">📦</span><span>Stock</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('cctv', 2, this)">
+        <span class="icon">📷</span><span>CCTV</span>
+      </button>
+    </nav>
+  </div>
 
   <script>
-    const STORAGE_KEY = "store_ops_v1";
-    let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-      shifts: [
-        { id: 1, name: "我（老板）", date: new Date().toISOString().slice(0,10), type: "早班 09:00-17:00" },
-        { id: 2, name: "店员 A", date: new Date().toISOString().slice(0,10), type: "晚班 14:00-22:00" }
-      ],
-      items: [
-        { id: 1, name: "示例商品 A", qty: 24 },
-        { id: 2, name: "示例商品 B", qty: 10 }
-      ],
-      webhookUrl: "",
-      customCctv: ""
+    const KEY = "store_liquid_v2";
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    let data = JSON.parse(localStorage.getItem(KEY)) || {
+      users: ["我（店长）", "员工 1", "员工 2", "员工 3"],
+      activeUser: 0, // 0 = 店长, 1..3 = 员工
+      shifts: {},    // key: "userIndex_YYYY-MM-DD" -> shiftName
+      sheetUrl: "",
+      stocks: [
+        { id: 1, name: "示例货品 A", qty: 20 },
+        { id: 2, name: "示例货品 B", qty: 12 }
+      ]
     };
 
-    document.getElementById("shiftDate").value = new Date().toISOString().slice(0,10);
-    document.getElementById("webhookUrl").value = state.webhookUrl || "";
-    document.getElementById("customCctvInput").value = state.customCctv || "";
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth(); // 0-11
+    let selectedDate = todayStr;
 
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    function saveData() {
+      localStorage.setItem(KEY, JSON.stringify(data));
     }
 
-    function switchTab(tab, btn) {
-      ["schedule", "inventory", "cctv"].forEach(t => {
-        document.getElementById("tab-" + t).classList.add("hidden");
-      });
-      document.getElementById("tab-" + tab).classList.remove("hidden");
+    // 底部导航切换
+    function switchTab(name, idx, btn) {
+      ["schedule", "stock", "cctv"].forEach(t => document.getElementById("tab-" + t).classList.add("hidden"));
+      document.getElementById("tab-" + name).classList.remove("hidden");
       document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
+      document.getElementById("tabIndicator").style.transform = `translateX(${idx * 100}%)`;
     }
 
-    function addShift() {
-      const name = document.getElementById("staffName").value.trim();
-      const date = document.getElementById("shiftDate").value;
-      const type = document.getElementById("shiftType").value;
-      if (!name || !date) return alert("请填写姓名和日期");
-      state.shifts.unshift({ id: Date.now(), name, date, type });
-      saveState();
-      renderShifts();
-      document.getElementById("staffName").value = "";
+    // 渲染账号切换按钮 & 名字输入框
+    function renderAccounts() {
+      const bar = document.getElementById("accountBar");
+      bar.innerHTML = data.users.map((u, idx) => `
+        <button class="acc-btn ${data.activeUser === idx ? 'active' : ''}" onclick="selectUser(${idx})">
+          ${idx === 0 ? '👑 ' : ''}${u || ('员工 ' + idx)}
+        </button>
+      `).join("");
+
+      data.users.forEach((u, idx) => {
+        document.getElementById("name_" + idx).value = u;
+      });
+
+      const isManager = data.activeUser === 0;
+      document.getElementById("headerBadge").textContent = isManager ? "👑 店长视角（完整资讯）" : "👤 员工视角：" + data.users[data.activeUser];
+      document.getElementById("managerDashboard").classList.toggle("hidden", !isManager);
     }
 
-    function deleteShift(id) {
-      state.shifts = state.shifts.filter(s => s.id !== id);
-      saveState();
-      renderShifts();
+    function selectUser(idx) {
+      data.activeUser = idx;
+      saveData();
+      renderAccounts();
+      renderCalendar();
     }
 
-    function renderShifts() {
-      const el = document.getElementById("shiftList");
-      if (!state.shifts.length) {
-        el.innerHTML = '<p class="hint">还没有排班记录</p>';
+    function saveNames() {
+      for (let i = 0; i < 4; i++) {
+        const val = document.getElementById("name_" + i).value.trim();
+        if (val) data.users[i] = val;
+      }
+      saveData();
+      renderAccounts();
+      renderCalendar();
+      alert("名字已更新！");
+    }
+
+    function shiftClass(s) {
+      if (s === "早班") return "bg-morning";
+      if (s === "晚班") return "bg-evening";
+      if (s === "offday") return "bg-offday";
+      if (s === "unpaid leave") return "bg-unpaid";
+      if (s === "annual leave") return "bg-annual";
+      if (s === "training") return "bg-training";
+      return "";
+    }
+
+    function changeMonth(delta) {
+      currentMonth += delta;
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      document.getElementById("calMonthTitle").textContent = `${currentYear}年 ${currentMonth + 1}月`;
+      const grid = document.getElementById("calGrid");
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+      let html = "";
+      for (let i = 0; i < firstDay; i++) {
+        html += `<div class="cal-day empty"></div>`;
+      }
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        const key = `${data.activeUser}_${dateStr}`;
+        const shift = data.shifts[key] || "";
+        const isSel = dateStr === selectedDate ? "selected" : "";
+        const isToday = dateStr === todayStr ? "today" : "";
+        html += `
+          <div class="cal-day ${isSel} ${isToday}" onclick="pickDate('${dateStr}')">
+            <span>${d}</span>
+            ${shift ? `<span class="shift-dot ${shiftClass(shift)}">${shift}</span>` : ""}
+          </div>
+        `;
+      }
+      grid.innerHTML = html;
+
+      const curShift = data.shifts[`${data.activeUser}_${selectedDate}`] || "未排班";
+      document.getElementById("selectedDateInfo").textContent =
+        `当前账号：【${data.users[data.activeUser]}】 | 选中日期：${selectedDate}（${curShift}）`;
+
+      renderManagerStats();
+    }
+
+    function pickDate(dateStr) {
+      selectedDate = dateStr;
+      renderCalendar();
+    }
+
+    function setShift(shiftName) {
+      const key = `${data.activeUser}_${selectedDate}`;
+      if (!shiftName) {
+        delete data.shifts[key];
+      } else {
+        data.shifts[key] = shiftName;
+      }
+      saveData();
+      renderCalendar();
+    }
+
+    // 店长专属统计资讯
+    function renderManagerStats() {
+      if (data.activeUser !== 0) return;
+
+      // 选中日期全店人员排班一览
+      const daySummary = data.users.map((u, idx) => {
+        const s = data.shifts[`${idx}_${selectedDate}`] || "未排班";
+        return `${u}：<b>${s}</b>`;
+      }).join(" ｜ ");
+      document.getElementById("todayAllStaff").innerHTML = `📅 <b>${selectedDate} 全店班表：</b><br/>${daySummary}`;
+
+      // 本月各人出勤统计
+      const monthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`;
+      const statsHtml = data.users.map((u, idx) => {
+        let workDays = 0, offDays = 0, leaveDays = 0;
+        Object.keys(data.shifts).forEach(k => {
+          if (k.startsWith(`${idx}_${monthPrefix}`)) {
+            const val = data.shifts[k];
+            if (val === "早班" || val === "晚班" || val === "training") workDays++;
+            else if (val === "offday") offDays++;
+            else leaveDays++;
+          }
+        });
+        return `
+          <div class="stat-item">
+            <strong>${idx === 0 ? "👑 " : ""}${u}</strong>
+            出勤/培训：${workDays} 天<br/>
+            Offday：${offDays} 天 ｜ 请假：${leaveDays} 天
+          </div>
+        `;
+      }).join("");
+      document.getElementById("monthlyStatsGrid").innerHTML = statsHtml;
+    }
+
+    // ==================== Stock 功能 ====================
+    document.getElementById("sheetUrlInput").value = data.sheetUrl || "";
+
+    function saveSheetUrl() {
+      data.sheetUrl = document.getElementById("sheetUrlInput").value.trim();
+      saveData();
+      alert("Google Sheets 链接已保存");
+    }
+
+    function addStockItem() {
+      const name = document.getElementById("newItemName").value.trim();
+      const qty = parseInt(document.getElementById("newItemQty").value, 10) || 0;
+      if (!name) return alert("请输入货品名称");
+      data.stocks.push({ id: Date.now(), name, qty });
+      saveData();
+      renderStocks();
+      document.getElementById("newItemName").value = "";
+      document.getElementById("newItemQty").value = "";
+      pushToSheet(`新增货品: ${name} (${qty})`);
+    }
+
+    function updateStock(id, delta, actionLabel) {
+      const item = data.stocks.find(s => s.id === id);
+      if (!item) return;
+      item.qty = Math.max(0, item.qty + delta);
+      saveData();
+      renderStocks();
+      pushToSheet(`${actionLabel}: ${item.name} (${delta > 0 ? '+' + delta : delta}) -> 剩余 ${item.qty}`);
+    }
+
+    function renderStocks() {
+      const list = document.getElementById("stockList");
+      if (!data.stocks.length) {
+        list.innerHTML = `<p class="hint">暂无货品，请先添加或从 Sheet 拉取。</p>`;
         return;
       }
-      el.innerHTML = state.shifts.map(s => `
-        <div class="shift-item">
+      list.innerHTML = data.stocks.map(s => `
+        <div class="stock-item">
           <div>
             <strong>${s.name}</strong>
-            <span class="tag">${s.date}</span>
-            <span class="tag">${s.type}</span>
           </div>
-          <button class="small secondary" onclick="deleteShift(${s.id})">删</button>
-        </div>
-      `).join("");
-    }
-
-    function addItem() {
-      const name = document.getElementById("itemName").value.trim();
-      const qty = Number(document.getElementById("itemQty").value);
-      if (!name) return alert("请输入货品名称");
-      state.items.push({ id: Date.now(), name, qty: isNaN(qty) ? 0 : qty });
-      saveState();
-      renderInventory();
-      document.getElementById("itemName").value = "";
-      document.getElementById("itemQty").value = "";
-    }
-
-    function changeQty(id, delta) {
-      const target = state.items.find(i => i.id === id);
-      if (!target) return;
-      target.qty = Math.max(0, target.qty + delta);
-      saveState();
-      renderInventory();
-    }
-
-    function renderInventory() {
-      const el = document.getElementById("inventoryList");
-      if (!state.items.length) {
-        el.innerHTML = '<p class="hint">暂无货品，请先添加</p>';
-        return;
-      }
-      el.innerHTML = state.items.map(i => `
-        <div class="inv-item">
-          <div><strong>${i.name}</strong></div>
-          <div class="row" style="margin:0;align-items:center;">
-            <button class="small secondary" onclick="changeQty(${i.id}, -1)">-</button>
-            <span style="min-width:34px;text-align:center;font-weight:700;">${i.qty}</span>
-            <button class="small secondary" onclick="changeQty(${i.id}, 1)">+</button>
+          <div class="qty-controls">
+            <button class="btn-sell" onclick="updateStock(${s.id}, -1, '卖出')">卖 -1</button>
+            <span class="qty-num">${s.qty}</span>
+            <button class="btn-in" onclick="updateStock(${s.id}, 1, '进货')">进 +1</button>
           </div>
         </div>
       `).join("");
     }
 
-    function saveWebhook() {
-      state.webhookUrl = document.getElementById("webhookUrl").value.trim();
-      saveState();
-      alert("同步地址已保存");
-    }
-
-    async function syncToForm() {
-      const statusEl = document.getElementById("syncStatus");
-      if (!state.webhookUrl) {
-        alert("请先在下方填入你的 Form / Google Apps Script 链接");
+    async function pushToSheet(note) {
+      const msg = document.getElementById("stockSyncMsg");
+      if (!data.sheetUrl) {
+        msg.textContent = `本地已更新（${note}）。填入 Sheet 链接后可自动同步。`;
         return;
       }
-      statusEl.textContent = "正在同步...";
+      msg.textContent = "正在同步到 Google Sheet...";
       try {
-        await fetch(state.webhookUrl, {
+        await fetch(data.sheetUrl, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            syncedAt: new Date().toISOString(),
-            items: state.items
+            action: "sync",
+            note,
+            updatedAt: new Date().toISOString(),
+            items: data.stocks
           })
         });
-        statusEl.textContent = "已发送同步请求（" + new Date().toLocaleTimeString() + "）";
-      } catch (err) {
-        statusEl.textContent = "同步失败，请检查链接是否正确";
+        msg.textContent = `✅ 已同步至 Sheet（${new Date().toLocaleTimeString()} - ${note}）`;
+      } catch (e) {
+        msg.textContent = "⚠️ 同步失败，请检查网络连接或 Sheet 链接。";
       }
     }
 
-    function saveCustomCctv() {
-      state.customCctv = document.getElementById("customCctvInput").value.trim();
-      saveState();
-      alert("自定义监控入口已保存");
-    }
-
-    function openApp(url) {
-      window.location.href = url;
-    }
-
-    function openCustomCctv() {
-      if (!state.customCctv) {
-        return alert("请先在下方输入监控 App 协议或网页链接");
+    async function pullFromSheet() {
+      const msg = document.getElementById("stockSyncMsg");
+      if (!data.sheetUrl) return alert("请先填写并保存你的 Google Apps Script 链接");
+      msg.textContent = "正在从 Sheet 读取货单...";
+      try {
+        const res = await fetch(data.sheetUrl);
+        const json = await res.json();
+        if (Array.isArray(json.items)) {
+          data.stocks = json.items.map((it, idx) => ({
+            id: Date.now() + idx,
+            name: it.name,
+            qty: Number(it.qty) || 0
+          }));
+          saveData();
+          renderStocks();
+          msg.textContent = `✅ 已从 Sheet 拉取 ${data.stocks.length} 项货品`;
+        }
+      } catch (e) {
+        msg.textContent = "⚠️ 读取失败：请确认你的 Apps Script 已包含 doGet() 并允许任何人访问。";
       }
-      window.location.href = state.customCctv;
     }
 
-    renderShifts();
-    renderInventory();
+    function openCctv(scheme) {
+      window.location.href = scheme;
+    }
+
+    // 初始化
+    renderAccounts();
+    renderCalendar();
+    renderStocks();
   </script>
 </body>
 </html>
+顺便给你配套的 Google Apps Script（支持“拉取 + 卖出减/进货加同步”）
+如果你之前的 Apps Script 只有接收功能，可以顺便把你的 Sheet 里的 Apps Script 换成下面这段，这样 「从 Sheet 拉取最新货单」 和 「卖出减/进货加同步」 就都能双向打通（表格第 1 列放货品名，第 2 列放数量）：
+
+JavaScript
+function doGet() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const rows = sheet.getDataRange().getValues();
+  const items = [];
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0]) {
+      items.push({ name: rows[i][0], qty: Number(rows[i][1]) || 0 });
+    }
+  }
+  return ContentService.createTextOutput(JSON.stringify({ items }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const payload = JSON.parse(e.postData.contents);
+  const items = payload.items || [];
+
+  sheet.clearContents();
+  sheet.appendRow(["货品名称", "当前库存", "最后更新时间", "变动备注"]);
+  items.forEach(item => {
+    sheet.appendRow([item.name, item.qty, payload.updatedAt || new Date(), payload.note || ""]);
+  });
+
+  return ContentService.createTextOutput("OK");
+}
