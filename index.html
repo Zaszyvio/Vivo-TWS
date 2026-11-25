@@ -219,3 +219,917 @@
       transition: all 0.18s ease;
     }
     .cal-day.empty { background: transparent; border: none; cursor: default; }
+    .cal-day.selected {
+      background: rgba(37, 99, 235, 0.24);
+      border: 1.5px solid var(--blue-bright);
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
+    }
+    .cal-day.today {
+      border-color: var(--blue-accent);
+    }
+    .shift-dot {
+      font-size: 9px;
+      line-height: 1.1;
+      padding: 2px 4px;
+      border-radius: 6px;
+      margin-top: 2px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    /* 黑白蓝统一色系班次标签 */
+    .bg-morning { background: #2563eb; color: #ffffff; }
+    .bg-evening { background: #1e3a8a; color: #dbeafe; border: 1px solid rgba(147, 197, 253, 0.5); }
+    .bg-offday { background: #64748b; color: #ffffff; }
+    .bg-unpaid { background: #0f172a; color: #93c5fd; border: 1px solid rgba(147, 197, 253, 0.45); }
+    .bg-annual { background: #ffffff; color: #0f172a; border: 1px solid rgba(15, 23, 42, 0.2); }
+    .bg-training { background: #38bdf8; color: #050811; }
+
+    .name-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .name-box {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .name-box label { font-size: 11px; color: var(--blue-accent); font-weight: 600; }
+
+    input, select, button {
+      font-size: 13px;
+      padding: 9px 11px;
+      border-radius: 12px;
+      border: 1px solid var(--surface-border);
+      background: var(--input-bg);
+      color: var(--text);
+      outline: none;
+      max-width: 100%;
+    }
+    input::placeholder { color: var(--placeholder); }
+    button.primary {
+      background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+      color: #ffffff;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+      cursor: pointer;
+    }
+
+    .shift-options {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .shift-choice {
+      min-width: 0;
+      padding: 10px 6px;
+      border-radius: 14px;
+      border: 1px solid var(--surface-border);
+      background: var(--surface-soft);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .shift-choice:active {
+      background: rgba(59, 130, 246, 0.32);
+      border-color: var(--blue-bright);
+    }
+    .shift-choice .swatch {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .stat-item {
+      background: var(--surface-soft);
+      border: 1px solid var(--surface-border);
+      border-radius: 14px;
+      padding: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .stat-item strong { display: block; font-size: 13px; margin-bottom: 4px; color: var(--text); }
+
+    .row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .row input { flex: 1; min-width: 100px; }
+
+    /* ==================== Stock 独立放大展示样式 ==================== */
+    .stock-card-item {
+      padding: 14px;
+      margin-bottom: 10px;
+      border-radius: 18px;
+      background: var(--surface-soft);
+      border: 1px solid var(--surface-border);
+    }
+    .stock-card-item:last-child { margin-bottom: 0; }
+    .stock-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .stock-model-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      display: block;
+      margin-bottom: 3px;
+    }
+    .stock-sub-meta {
+      font-size: 11px;
+      color: var(--muted);
+      display: block;
+    }
+    .stock-badges {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .stock-big-box {
+      padding: 6px 12px;
+      border-radius: 14px;
+      background: rgba(37, 99, 235, 0.22);
+      border: 1px solid rgba(147, 197, 253, 0.55);
+      text-align: center;
+      min-width: 68px;
+    }
+    .stock-big-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--blue-accent);
+      letter-spacing: 0.4px;
+    }
+    .stock-big-num {
+      display: block;
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--text);
+    }
+    .sales-side-box {
+      padding: 6px 10px;
+      border-radius: 14px;
+      background: var(--input-bg);
+      border: 1px solid var(--surface-border);
+      text-align: center;
+      min-width: 62px;
+    }
+    .sales-side-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .sales-side-num {
+      display: block;
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.25;
+      color: var(--blue-accent);
+    }
+    .qty-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .btn-return {
+      background: rgba(147, 197, 253, 0.16);
+      border: 1px solid rgba(147, 197, 253, 0.45);
+      color: var(--text);
+      font-weight: 700;
+      padding: 8px 6px;
+      border-radius: 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-in {
+      background: rgba(59, 130, 246, 0.32);
+      border: 1px solid rgba(59, 130, 246, 0.65);
+      color: var(--text);
+      font-weight: 700;
+      padding: 8px 6px;
+      border-radius: 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-sell {
+      background: var(--input-bg);
+      border: 1px solid var(--surface-border);
+      color: var(--text);
+      font-weight: 700;
+      padding: 8px 6px;
+      border-radius: 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .cctv-card-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(37, 99, 235, 0.22);
+      border: 1px solid var(--glass-border);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 透明液态玻璃底部悬浮胶囊栏 */
+    .tab-bar-wrap {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 28px);
+      max-width: 420px;
+      z-index: 40;
+    }
+    .tab-bar {
+      position: relative;
+      display: flex;
+      padding: 6px;
+      border-radius: 999px;
+      background-color: transparent;
+      backdrop-filter: blur(22px) saturate(180%);
+      -webkit-backdrop-filter: blur(22px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      touch-action: none;
+      user-select: none;
+    }
+    .tab-indicator {
+      position: absolute;
+      top: 6px;
+      bottom: 6px;
+      left: 6px;
+      width: calc((100% - 12px) / 3);
+      border-radius: 999px;
+      background: var(--indicator-bg);
+      backdrop-filter: blur(18px) saturate(200%) brightness(1.12);
+      -webkit-backdrop-filter: blur(18px) saturate(200%) brightness(1.12);
+      border: 1.2px solid var(--indicator-border);
+      box-shadow:
+        0 8px 24px rgba(37, 99, 235, 0.3),
+        inset 0 1.5px 1.5px rgba(255, 255, 255, 0.8);
+      transform-origin: center center;
+      transition: transform 0.52s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: grab;
+      z-index: 1;
+    }
+    .tab-indicator.dragging {
+      transition: none;
+      cursor: grabbing;
+      box-shadow:
+        0 14px 32px rgba(59, 130, 246, 0.45),
+        inset 0 1.5px 1.5px rgba(255, 255, 255, 0.95);
+    }
+    .tab-btn {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      background: transparent !important;
+      border: none !important;
+      color: var(--tab-text);
+      padding: 7px 4px;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      cursor: pointer;
+    }
+    .tab-btn .icon { font-size: 18px; }
+    .tab-btn.active { color: var(--tab-active-text); text-shadow: var(--tab-active-shadow); }
+    .hidden { display: none !important; }
+    .hint { font-size: 12px; color: var(--muted); line-height: 1.45; margin: 8px 0 0; }
+  </style>
+</head>
+<body>
+
+  <header class="glass">
+    <h1>🏪 门店管理</h1>
+    <div class="header-actions">
+      <button class="theme-btn" id="themeToggleBtn" onclick="cycleTheme()">🖥️ 自动</button>
+      <span class="manager-pill" id="headerBadge">👑 店长视角</span>
+    </div>
+  </header>
+
+  <div class="container" id="tab-schedule">
+    <div class="account-bar" id="accountBar"></div>
+
+    <div class="card glass">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+        <strong id="calMonthTitle" style="font-size:15px;">2026年 11月</strong>
+        <button class="cal-nav" onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="cal-weekdays">
+        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <p class="hint" id="selectedDateInfo">当前选中日期：-</p>
+    </div>
+
+    <div class="card glass">
+      <div class="card-title">
+        <span>👤 人员名字设置（店长 + 3名员工）</span>
+        <button class="primary" style="padding:5px 10px;font-size:12px;" onclick="saveNames()">保存名字</button>
+      </div>
+      <div class="name-grid">
+        <div class="name-box">
+          <label>我的名字（店长）</label>
+          <input type="text" id="name_0" placeholder="输入你的名字" />
+        </div>
+        <div class="name-box">
+          <label>员工 1</label>
+          <input type="text" id="name_1" placeholder="输入员工1名字" />
+        </div>
+        <div class="name-box">
+          <label>员工 2</label>
+          <input type="text" id="name_2" placeholder="输入员工2名字" />
+        </div>
+        <div class="name-box">
+          <label>员工 3</label>
+          <input type="text" id="name_3" placeholder="输入员工3名字" />
+        </div>
+      </div>
+    </div>
+
+    <div class="card glass">
+      <div class="card-title">
+        <span>🕒 选择班次</span>
+        <button style="padding:4px 8px;font-size:11px;" onclick="setShift('')">清除当天</button>
+      </div>
+      <div class="shift-options">
+        <button class="shift-choice" onclick="setShift('早班')"><span class="swatch bg-morning"></span>早班</button>
+        <button class="shift-choice" onclick="setShift('晚班')"><span class="swatch bg-evening"></span>晚班</button>
+        <button class="shift-choice" onclick="setShift('offday')"><span class="swatch bg-offday"></span>Offday</button>
+        <button class="shift-choice" onclick="setShift('unpaid leave')"><span class="swatch bg-unpaid"></span>Unpaid Leave</button>
+        <button class="shift-choice" onclick="setShift('annual leave')"><span class="swatch bg-annual"></span>Annual Leave</button>
+        <button class="shift-choice" onclick="setShift('training')"><span class="swatch bg-training"></span>Training</button>
+      </div>
+    </div>
+
+    <div class="card glass" id="managerDashboard">
+      <div class="card-title">
+        <span>📊 店长总览（全店排班与工时统计）</span>
+      </div>
+      <div id="todayAllStaff" style="font-size:12px;margin-bottom:10px;padding:10px;border-radius:14px;background:var(--surface-soft);border:1px solid var(--surface-border);"></div>
+      <div class="stats-grid" id="monthlyStatsGrid"></div>
+    </div>
+  </div>
+
+  <div class="container hidden" id="tab-stock">
+    <div class="card glass">
+      <div class="card-title"><span>🔗 Google Sheets 同步接口</span></div>
+      <div class="row">
+        <input type="url" id="sheetUrlInput" placeholder="粘贴你的 Google Apps Script 链接" />
+        <button class="primary" onclick="saveSheetUrl()">保存</button>
+      </div>
+      <div class="row" style="margin-bottom:0;">
+        <button style="flex:1;font-weight:700;" onclick="pullFromSheet()">⬇️ 从 Sheet 拉取货单</button>
+        <select id="stockCatFilter" onchange="renderStocks()" style="max-width:125px;">
+          <option value="ALL">全部货品</option>
+          <option value="Phone">Phone</option>
+          <option value="Accessory">Accessory</option>
+        </select>
+      </div>
+      <p class="hint" id="stockSyncMsg">状态：等待连接 Google Sheet...</p>
+    </div>
+
+    <div class="card glass">
+      <div class="card-title"><span>📦 店内 Stock 清单（退货 / 加1 / 减1）</span></div>
+      <input type="text" id="stockSearchInput" oninput="renderStocks()" placeholder="搜索型号 / 颜色..." style="width:100%;margin-bottom:12px;" />
+      <div id="stockList"></div>
+    </div>
+  </div>
+
+  <div class="container hidden" id="tab-cctv">
+    <div class="card glass">
+      <div class="card-title"><span>📹 TP-Link 监控快捷入口</span></div>
+      <button class="cctv-card-btn" onclick="openCctv('tapo://')">
+        <span>TP-Link Tapo</span><span>打开 ›</span>
+      </button>
+      <button class="cctv-card-btn" onclick="openCctv('vigi://')">
+        <span>TP-Link VIGI</span><span>打开 ›</span>
+      </button>
+      <p class="hint">下一步等你的界面跑通后，我教你如何配置与你手机上 TP-Link App 的直连方式。</p>
+    </div>
+  </div>
+
+  <div class="tab-bar-wrap">
+    <nav class="tab-bar" id="glassTabBar">
+      <div class="tab-indicator" id="tabIndicator"></div>
+      <button class="tab-btn active" data-tab="schedule" data-index="0" onclick="switchTab('schedule', 0, this)">
+        <span class="icon">📅</span><span>时间表</span>
+      </button>
+      <button class="tab-btn" data-tab="stock" data-index="1" onclick="switchTab('stock', 1, this)">
+        <span class="icon">📦</span><span>Stock</span>
+      </button>
+      <button class="tab-btn" data-tab="cctv" data-index="2" onclick="switchTab('cctv', 2, this)">
+        <span class="icon">📷</span><span>CCTV</span>
+      </button>
+    </nav>
+  </div>
+
+  <script>
+    const KEY = "store_liquid_v4";
+    const THEME_KEY = "store_liquid_theme";
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    // ==================== 浅色 / 深色 / 跟随手机主题切换 ====================
+    const themeModes = ["auto", "light", "dark"];
+    const themeLabels = { auto: "🖥️ 自动", light: "☀️ 浅色", dark: "🌙 深色" };
+    let currentThemeMode = localStorage.getItem(THEME_KEY) || "auto";
+    const systemDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    function applyTheme() {
+      const effective = currentThemeMode === "auto"
+        ? (systemDarkQuery.matches ? "dark" : "light")
+        : currentThemeMode;
+      document.documentElement.setAttribute("data-theme", effective);
+      const btn = document.getElementById("themeToggleBtn");
+      if (btn) btn.textContent = themeLabels[currentThemeMode];
+    }
+
+    function cycleTheme() {
+      const nextIdx = (themeModes.indexOf(currentThemeMode) + 1) % themeModes.length;
+      currentThemeMode = themeModes[nextIdx];
+      localStorage.setItem(THEME_KEY, currentThemeMode);
+      applyTheme();
+    }
+
+    systemDarkQuery.addEventListener("change", () => {
+      if (currentThemeMode === "auto") applyTheme();
+    });
+    applyTheme();
+
+    // ==================== 业务数据 ====================
+    let data = JSON.parse(localStorage.getItem(KEY)) || {
+      users: ["我（店长）", "员工 1", "员工 2", "员工 3"],
+      activeUser: 0,
+      shifts: {},
+      sheetUrl: "https://script.google.com/macros/s/AKfycbwKrZdVpaIM-aPyLsD08hzVbzxxteBIEecvCi/exec",
+      stocks: []
+    };
+
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth();
+    let selectedDate = todayStr;
+
+    function saveData() {
+      localStorage.setItem(KEY, JSON.stringify(data));
+    }
+
+    const tabNames = ["schedule", "stock", "cctv"];
+    let currentTabIndex = 0;
+
+    function switchTab(name, idx, btn) {
+      currentTabIndex = idx;
+      tabNames.forEach(t => document.getElementById("tab-" + t).classList.add("hidden"));
+      document.getElementById("tab-" + name).classList.remove("hidden");
+
+      const btns = document.querySelectorAll(".tab-btn");
+      btns.forEach(b => b.classList.remove("active"));
+      const targetBtn = btn || btns[idx];
+      if (targetBtn) targetBtn.classList.add("active");
+
+      const indicator = document.getElementById("tabIndicator");
+      indicator.classList.remove("dragging");
+      indicator.style.transform = `translateX(${idx * 100}%)`;
+
+      if (name === "stock" && data.sheetUrl) {
+        pullFromSheet();
+      }
+    }
+
+    // 轻点直接切换 + 手指滑动停在哪个选项就切到哪一个（果冻放大回弹）
+    (function initTabSwipe() {
+      const bar = document.getElementById("glassTabBar");
+      const indicator = document.getElementById("tabIndicator");
+      if (!bar || !indicator) return;
+
+      let isDragging = false;
+      let hasMoved = false;
+      let startX = 0;
+      let lastX = 0;
+      let currentOffsetPx = 0;
+
+      function getStepWidth() {
+        return (bar.clientWidth - 12) / 3;
+      }
+
+      bar.addEventListener("pointerdown", (e) => {
+        isDragging = true;
+        hasMoved = false;
+        startX = e.clientX;
+        lastX = e.clientX;
+        currentOffsetPx = currentTabIndex * getStepWidth();
+      });
+
+      bar.addEventListener("pointermove", (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - startX;
+
+        if (!hasMoved && Math.abs(deltaX) > 6) {
+          hasMoved = true;
+          indicator.classList.add("dragging");
+          bar.setPointerCapture(e.pointerId);
+        }
+        if (!hasMoved) return;
+
+        const stepW = getStepWidth();
+        const maxOffset = stepW * 2;
+        const velocityX = e.clientX - lastX;
+        lastX = e.clientX;
+
+        let nextPx = currentOffsetPx + deltaX;
+        if (nextPx < 0) nextPx = nextPx * 0.25;
+        if (nextPx > maxOffset) nextPx = maxOffset + (nextPx - maxOffset) * 0.25;
+
+        const stretch = Math.min(0.16, Math.abs(velocityX) * 0.009);
+        const scaleX = 1.30 + stretch;
+        const scaleY = 1.24 - stretch * 0.45;
+
+        indicator.style.transform = `translateX(${nextPx}px) scale(${scaleX.toFixed(3)}, ${scaleY.toFixed(3)})`;
+      });
+
+      function finishDrag(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        indicator.classList.remove("dragging");
+
+        if (!hasMoved) {
+          const btn = e.target.closest(".tab-btn");
+          if (btn) {
+            const idx = Number(btn.dataset.index);
+            switchTab(tabNames[idx], idx, btn);
+          }
+          return;
+        }
+
+        const stepW = getStepWidth();
+        const maxOffset = stepW * 2;
+        const deltaX = e.clientX - startX;
+
+        let finalPx = currentOffsetPx + deltaX;
+        finalPx = Math.max(0, Math.min(maxOffset, finalPx));
+
+        const indicatorCenterPx = finalPx + stepW / 2;
+        let targetIdx = Math.floor(indicatorCenterPx / stepW);
+        targetIdx = Math.max(0, Math.min(2, targetIdx));
+
+        switchTab(tabNames[targetIdx], targetIdx);
+      }
+
+      bar.addEventListener("pointerup", finishDrag);
+      bar.addEventListener("pointercancel", finishDrag);
+    })();
+
+    // ==================== 时间表功能 ====================
+    function renderAccounts() {
+      const bar = document.getElementById("accountBar");
+      bar.innerHTML = data.users.map((u, idx) => `
+        <button class="acc-btn ${data.activeUser === idx ? 'active' : ''}" onclick="selectUser(${idx})">
+          ${idx === 0 ? '👑 ' : ''}${u || ('员工 ' + idx)}
+        </button>
+      `).join("");
+
+      data.users.forEach((u, idx) => {
+        document.getElementById("name_" + idx).value = u;
+      });
+
+      const isManager = data.activeUser === 0;
+      document.getElementById("headerBadge").textContent = isManager ? "👑 店长视角" : "👤 " + data.users[data.activeUser];
+      document.getElementById("managerDashboard").classList.toggle("hidden", !isManager);
+    }
+
+    function selectUser(idx) {
+      data.activeUser = idx;
+      saveData();
+      renderAccounts();
+      renderCalendar();
+    }
+
+    function saveNames() {
+      for (let i = 0; i < 4; i++) {
+        const val = document.getElementById("name_" + i).value.trim();
+        if (val) data.users[i] = val;
+      }
+      saveData();
+      renderAccounts();
+      renderCalendar();
+      alert("名字已更新！");
+    }
+
+    function shiftClass(s) {
+      if (s === "早班") return "bg-morning";
+      if (s === "晚班") return "bg-evening";
+      if (s === "offday") return "bg-offday";
+      if (s === "unpaid leave") return "bg-unpaid";
+      if (s === "annual leave") return "bg-annual";
+      if (s === "training") return "bg-training";
+      return "";
+    }
+
+    function changeMonth(delta) {
+      currentMonth += delta;
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      document.getElementById("calMonthTitle").textContent = `${currentYear}年 ${currentMonth + 1}月`;
+      const grid = document.getElementById("calGrid");
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+      let html = "";
+      for (let i = 0; i < firstDay; i++) {
+        html += `<div class="cal-day empty"></div>`;
+      }
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        const key = `${data.activeUser}_${dateStr}`;
+        const shift = data.shifts[key] || "";
+        const isSel = dateStr === selectedDate ? "selected" : "";
+        const isToday = dateStr === todayStr ? "today" : "";
+        html += `
+          <div class="cal-day ${isSel} ${isToday}" onclick="pickDate('${dateStr}')">
+            <span>${d}</span>
+            ${shift ? `<span class="shift-dot ${shiftClass(shift)}">${shift}</span>` : ""}
+          </div>
+        `;
+      }
+      grid.innerHTML = html;
+
+      const curShift = data.shifts[`${data.activeUser}_${selectedDate}`] || "未排班";
+      document.getElementById("selectedDateInfo").textContent =
+        `当前账号：【${data.users[data.activeUser]}】 | 选中日期：${selectedDate}（${curShift}）`;
+
+      renderManagerStats();
+    }
+
+    function pickDate(dateStr) {
+      selectedDate = dateStr;
+      renderCalendar();
+    }
+
+    function setShift(shiftName) {
+      const key = `${data.activeUser}_${selectedDate}`;
+      if (!shiftName) {
+        delete data.shifts[key];
+      } else {
+        data.shifts[key] = shiftName;
+      }
+      saveData();
+      renderCalendar();
+    }
+
+    function renderManagerStats() {
+      if (data.activeUser !== 0) return;
+
+      const daySummary = data.users.map((u, idx) => {
+        const s = data.shifts[`${idx}_${selectedDate}`] || "未排班";
+        return `${u}：<b>${s}</b>`;
+      }).join(" ｜ ");
+      document.getElementById("todayAllStaff").innerHTML = `📅 <b style="color:var(--blue-accent)">${selectedDate} 全店班表：</b><br/>${daySummary}`;
+
+      const monthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`;
+      const statsHtml = data.users.map((u, idx) => {
+        let workDays = 0, offDays = 0, leaveDays = 0;
+        Object.keys(data.shifts).forEach(k => {
+          if (k.startsWith(`${idx}_${monthPrefix}`)) {
+            const val = data.shifts[k];
+            if (val === "早班" || val === "晚班" || val === "training") workDays++;
+            else if (val === "offday") offDays++;
+            else leaveDays++;
+          }
+        });
+        return `
+          <div class="stat-item">
+            <strong>${idx === 0 ? "👑 " : ""}${u}</strong>
+            出勤/培训：${workDays} 天<br/>
+            Offday：${offDays} 天 ｜ 请假：${leaveDays} 天
+          </div>
+        `;
+      }).join("");
+      document.getElementById("monthlyStatsGrid").innerHTML = statsHtml;
+    }
+
+    // ==================== Stock 功能（独立放大库存 + 对接 Apps Script） ====================
+    const sheetInputEl = document.getElementById("sheetUrlInput");
+    if (sheetInputEl) sheetInputEl.value = data.sheetUrl || "";
+
+    function saveSheetUrl() {
+      data.sheetUrl = document.getElementById("sheetUrlInput").value.trim();
+      saveData();
+      alert("Google Sheets 链接已保存");
+      if (data.sheetUrl) pullFromSheet();
+    }
+
+    function renderStocks() {
+      const list = document.getElementById("stockList");
+      if (!list) return;
+
+      const cat = document.getElementById("stockCatFilter")?.value || "ALL";
+      const kw = (document.getElementById("stockSearchInput")?.value || "").trim().toLowerCase();
+
+      const filtered = (data.stocks || []).filter(item => {
+        const matchCat = cat === "ALL" || item.category === cat;
+        const matchKw = !kw ||
+          String(item.model || "").toLowerCase().includes(kw) ||
+          String(item.color || "").toLowerCase().includes(kw);
+        return matchCat && matchKw;
+      });
+
+      if (!filtered.length) {
+        list.innerHTML = `<p class="hint">暂无匹配货品，请检查 Sheet 或点击“从 Sheet 拉取货单”。</p>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(item => {
+        const realIdx = data.stocks.indexOf(item);
+        const subInfo = [
+          item.category || "",
+          item.color || "",
+          item.price ? `RM${item.price}` : ""
+        ].filter(Boolean).join(" · ");
+
+        return `
+          <div class="stock-card-item">
+            <div class="stock-top-row">
+              <div style="min-width:0;">
+                <span class="stock-model-name">${item.model}</span>
+                <span class="stock-sub-meta">${subInfo || "常规货品"}</span>
+              </div>
+              <div class="stock-badges">
+                <div class="stock-big-box">
+                  <span class="stock-big-label">STOCK</span>
+                  <span class="stock-big-num">${item.stock}</span>
+                </div>
+                <div class="sales-side-box">
+                  <span class="sales-side-label">SALES QTY</span>
+                  <span class="sales-side-num">${item.sold || 0}</span>
+                </div>
+              </div>
+            </div>
+            <div class="qty-controls">
+              <button class="btn-return" onclick="handleStockAction(${realIdx}, 'return')">退货</button>
+              <button class="btn-in" onclick="handleStockAction(${realIdx}, 'add')">加1</button>
+              <button class="btn-sell" onclick="handleStockAction(${realIdx}, 'minus')">减1</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function handleStockAction(idx, type) {
+      const item = data.stocks[idx];
+      if (!item) return;
+
+      let curStock = Number(item.stock) || 0;
+      let curSold = Number(item.sold) || 0;
+      let note = "";
+
+      if (type === "add") {
+        curStock = curStock + 1;
+        note = `加1 -> Stock ${curStock}`;
+      } else if (type === "minus") {
+        if (curStock <= 0) {
+          return alert(`【${item.model}】Stock 已为 0，无法再减 1`);
+        }
+        curStock = curStock - 1;
+        curSold = curSold + 1;
+        note = `减1 -> Stock ${curStock}，Sales QTY ${curSold}`;
+      } else if (type === "return") {
+        curStock = curStock + 1;
+        curSold = Math.max(0, curSold - 1);
+        note = `退货 -> Stock ${curStock}，Sales QTY ${curSold}`;
+      }
+
+      item.stock = curStock;
+      item.sold = curSold;
+      saveData();
+      renderStocks();
+
+      await syncRowToSheet({
+        sheet: item.sheet,
+        row: item.row,
+        stock: item.stock,
+        sold: item.sold,
+        note: `${item.model} ${note}`
+      });
+    }
+
+    async function syncRowToSheet(payload) {
+      const msg = document.getElementById("stockSyncMsg");
+      const url = (document.getElementById("sheetUrlInput")?.value || data.sheetUrl || "").trim();
+      if (!url) {
+        msg.textContent = `本地已更新（${payload.note}），请先保存 Sheet 链接。`;
+        return;
+      }
+      msg.textContent = `正在同步【${payload.note}】到 Sheet...`;
+      try {
+        await fetch(url, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        msg.textContent = `✅ 已同步（${new Date().toLocaleTimeString()}）：${payload.note}`;
+      } catch (e) {
+        msg.textContent = `⚠️ 同步失败，请检查网络连接或 Apps Script 权限。`;
+      }
+    }
+
+    async function pullFromSheet() {
+      const msg = document.getElementById("stockSyncMsg");
+      const url = (document.getElementById("sheetUrlInput")?.value || data.sheetUrl || "").trim();
+      if (!url) {
+        msg.textContent = "状态：请先填入 Google Apps Script 链接并保存。";
+        return;
+      }
+      data.sheetUrl = url;
+      saveData();
+
+      msg.textContent = "正在从 Sheet 读取货单...";
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10000);
+
+      try {
+        const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
+        clearTimeout(timer);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const text = await res.text();
+        const json = JSON.parse(text);
+        const list = Array.isArray(json) ? json : (Array.isArray(json.items) ? json.items : null);
+
+        if (!list) {
+          throw new Error("返回数据不是数组");
+        }
+
+        data.stocks = list.map(it => ({
+          row: Number(it.row),
+          sheet: String(it.sheet || "Daily Sales-Phone"),
+          category: String(it.category || ""),
+          model: String(it.model || "").trim(),
+          color: String(it.color || "").trim(),
+          price: Number(it.price) || 0,
+          sold: Number(it.sold) || 0,
+          stock: Number(it.stock) || 0,
+          demo: Number(it.demo) || 0
+        })).filter(it => it.model && it.row > 0);
+
+        saveData();
+        renderStocks();
+        msg.textContent = `✅ 已同步 ${data.stocks.length} 项货品（${new Date().toLocaleTimeString()}）`;
+      } catch (e) {
+        clearTimeout(timer);
+        if (e.name === "AbortError") {
+          msg.textContent = "⚠️ 读取超时（10秒）：请检查网络或 Apps Script 链接。";
+        } else {
+          msg.textContent = `⚠️ 读取失败（${e.message}）：请确认 Apps Script 已部署“Anyone”访问。`;
+        }
+      }
+    }
+
+    function openCctv(scheme) {
+      window.location.href = scheme;
+    }
+
+    renderAccounts();
+    renderCalendar();
+    renderStocks();
+    if (data.sheetUrl) pullFromSheet();
+  </script>
+</body>
+</html>
