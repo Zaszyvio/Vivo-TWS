@@ -333,31 +333,42 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 0;
+      padding: 11px 0;
       border-bottom: 1px solid var(--surface-border);
       gap: 8px;
     }
     .stock-item:last-child { border-bottom: none; }
-    .qty-controls { display: flex; align-items: center; gap: 6px; }
+    .qty-controls { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+    .btn-return {
+      background: rgba(147, 197, 253, 0.16);
+      border: 1px solid rgba(147, 197, 253, 0.45);
+      color: var(--text);
+      font-weight: 700;
+      padding: 6px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn-in {
+      background: rgba(59, 130, 246, 0.28);
+      border: 1px solid rgba(59, 130, 246, 0.6);
+      color: var(--text);
+      font-weight: 700;
+      padding: 6px 9px;
+      border-radius: 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
     .btn-sell {
       background: var(--surface-soft);
       border: 1px solid var(--surface-border);
       color: var(--text);
       font-weight: 700;
-      padding: 6px 10px;
+      padding: 6px 9px;
       border-radius: 10px;
+      font-size: 12px;
       cursor: pointer;
     }
-    .btn-in {
-      background: rgba(59, 130, 246, 0.25);
-      border: 1px solid rgba(59, 130, 246, 0.55);
-      color: var(--text);
-      font-weight: 700;
-      padding: 6px 10px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .qty-num { min-width: 34px; text-align: center; font-weight: 800; font-size: 15px; color: var(--text); }
 
     .cctv-card-btn {
       width: 100%;
@@ -529,23 +540,23 @@
         <button class="primary" onclick="saveSheetUrl()">保存</button>
       </div>
       <div class="row" style="margin-bottom:0;">
-        <button style="flex:1;font-weight:700;" onclick="pullFromSheet()">⬇️ 从 Sheet 拉取最新货单</button>
-        <button class="primary" style="flex:1;" onclick="pushToSheet('全量盘点同步')">⬆️ 同步到 Sheet</button>
+        <button style="flex:1;font-weight:700;" onclick="pullFromSheet()">⬇️ 从 Sheet 同步货单</button>
+        <button class="primary" style="flex:1;" onclick="pushAllStocksToSheet()">⬆️ 全量推送到 Sheet</button>
       </div>
-      <p class="hint" id="stockSyncMsg">状态：本地已就绪（卖出减库存、进货加库存后会自动记录并同步）。</p>
+      <p class="hint" id="stockSyncMsg">状态：等待连接 Google Sheet...</p>
     </div>
 
     <div class="card glass">
-      <div class="card-title"><span>➕ 新增货品</span></div>
+      <div class="card-title"><span>➕ 新增货品（同步到 Sheet）</span></div>
       <div class="row" style="margin-bottom:0;">
         <input type="text" id="newItemName" placeholder="货品名称" />
-        <input type="number" id="newItemQty" placeholder="初始数量" style="max-width:100px;" />
+        <input type="number" id="newItemQty" placeholder="数量" style="max-width:90px;" />
         <button class="primary" onclick="addStockItem()">添加</button>
       </div>
     </div>
 
     <div class="card glass">
-      <div class="card-title"><span>📦 店内 Stock 清单（卖了减 / 进货加）</span></div>
+      <div class="card-title"><span>📦 店内 Stock 清单（退货 / 加1 / 减1）</span></div>
       <div id="stockList"></div>
     </div>
   </div>
@@ -579,7 +590,7 @@
   </div>
 
   <script>
-    const KEY = "store_liquid_v2";
+    const KEY = "store_liquid_v3";
     const THEME_KEY = "store_liquid_theme";
     const todayStr = new Date().toISOString().slice(0, 10);
 
@@ -615,11 +626,8 @@
       users: ["我（店长）", "员工 1", "员工 2", "员工 3"],
       activeUser: 0,
       shifts: {},
-      sheetUrl: "",
-      stocks: [
-        { id: 1, name: "示例货品 A", qty: 20 },
-        { id: 2, name: "示例货品 B", qty: 12 }
-      ]
+      sheetUrl: "https://script.google.com/macros/s/AKfycbwKrZdVpaIM-aPyLsD08hzVbzxxteBIEecvCi/exec",
+      stocks: []
     };
 
     let currentYear = new Date().getFullYear();
@@ -646,6 +654,10 @@
       const indicator = document.getElementById("tabIndicator");
       indicator.classList.remove("dragging");
       indicator.style.transform = `translateX(${idx * 100}%)`;
+
+      if (name === "stock" && data.sheetUrl) {
+        pullFromSheet();
+      }
     }
 
     // 轻点直接切换 + 手指滑动停在哪个选项就切到哪一个（果冻放大回弹）
@@ -731,6 +743,7 @@
       bar.addEventListener("pointercancel", finishDrag);
     })();
 
+    // ==================== 时间表功能 ====================
     function renderAccounts() {
       const bar = document.getElementById("accountBar");
       bar.innerHTML = data.users.map((u, idx) => `
@@ -862,99 +875,161 @@
       document.getElementById("monthlyStatsGrid").innerHTML = statsHtml;
     }
 
-    document.getElementById("sheetUrlInput").value = data.sheetUrl || "";
+    // ==================== Stock 功能（跟 Sheet 同步 + 退货/加1/减1） ====================
+    const sheetInputEl = document.getElementById("sheetUrlInput");
+    if (sheetInputEl) sheetInputEl.value = data.sheetUrl || "";
 
     function saveSheetUrl() {
       data.sheetUrl = document.getElementById("sheetUrlInput").value.trim();
       saveData();
       alert("Google Sheets 链接已保存");
-    }
-
-    function addStockItem() {
-      const name = document.getElementById("newItemName").value.trim();
-      const qty = parseInt(document.getElementById("newItemQty").value, 10) || 0;
-      if (!name) return alert("请输入货品名称");
-      data.stocks.push({ id: Date.now(), name, qty });
-      saveData();
-      renderStocks();
-      document.getElementById("newItemName").value = "";
-      document.getElementById("newItemQty").value = "";
-      pushToSheet(`新增货品: ${name} (${qty})`);
-    }
-
-    function updateStock(id, delta, actionLabel) {
-      const item = data.stocks.find(s => s.id === id);
-      if (!item) return;
-      item.qty = Math.max(0, item.qty + delta);
-      saveData();
-      renderStocks();
-      pushToSheet(`${actionLabel}: ${item.name} (${delta > 0 ? '+' + delta : delta}) -> 剩余 ${item.qty}`);
+      if (data.sheetUrl) pullFromSheet();
     }
 
     function renderStocks() {
       const list = document.getElementById("stockList");
-      if (!data.stocks.length) {
-        list.innerHTML = `<p class="hint">暂无货品，请先添加或从 Sheet 拉取。</p>`;
+      if (!list) return;
+      if (!data.stocks || !data.stocks.length) {
+        list.innerHTML = `<p class="hint">Sheet 暂无货品，请先添加或点击“从 Sheet 同步货单”。</p>`;
         return;
       }
-      list.innerHTML = data.stocks.map(s => `
+      list.innerHTML = data.stocks.map((s, idx) => `
         <div class="stock-item">
-          <div>
-            <strong>${s.name}</strong>
+          <div style="min-width:0;">
+            <strong style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.name}</strong>
+            <span style="font-size:11px;color:var(--muted);">库存: <b style="color:var(--text)">${s.qty}</b> ｜ Sales Qty: <b style="color:var(--blue-accent)">${s.salesQty || 0}</b></span>
           </div>
           <div class="qty-controls">
-            <button class="btn-sell" onclick="updateStock(${s.id}, -1, '卖出')">卖 -1</button>
-            <span class="qty-num">${s.qty}</span>
-            <button class="btn-in" onclick="updateStock(${s.id}, 1, '进货')">进 +1</button>
+            <button class="btn-return" onclick="handleStockAction(${idx}, 'return')">退货</button>
+            <button class="btn-in" onclick="handleStockAction(${idx}, 'add')">加1</button>
+            <button class="btn-sell" onclick="handleStockAction(${idx}, 'minus')">减1</button>
           </div>
         </div>
       `).join("");
     }
 
-    async function pushToSheet(note) {
+    async function handleStockAction(idx, type) {
+      const item = data.stocks[idx];
+      if (!item) return;
+
+      let changeText = "";
+      if (type === "add") {
+        item.qty = Number(item.qty || 0) + 1;
+        changeText = `加1 -> 库存 ${item.qty}`;
+      } else if (type === "minus") {
+        if (Number(item.qty || 0) <= 0) {
+          return alert(`【${item.name}】库存已为 0，无法再减 1`);
+        }
+        item.qty = Number(item.qty || 0) - 1;
+        item.salesQty = Number(item.salesQty || 0) + 1;
+        changeText = `减1 -> 库存 ${item.qty}，Sales Qty ${item.salesQty}`;
+      } else if (type === "return") {
+        item.qty = Number(item.qty || 0) + 1;
+        item.salesQty = Math.max(0, Number(item.salesQty || 0) - 1);
+        changeText = `退货 -> 库存 ${item.qty}，Sales Qty ${item.salesQty}`;
+      }
+
+      saveData();
+      renderStocks();
+
+      await syncSingleItemToSheet({
+        action: type,
+        name: item.name,
+        qty: item.qty,
+        salesQty: item.salesQty || 0,
+        note: `${item.name} ${changeText}`
+      });
+    }
+
+    async function addStockItem() {
+      const name = document.getElementById("newItemName").value.trim();
+      const qty = parseInt(document.getElementById("newItemQty").value, 10) || 0;
+      if (!name) return alert("请输入货品名称");
+
+      const existingIdx = data.stocks.findIndex(s => s.name === name);
+      if (existingIdx >= 0) {
+        data.stocks[existingIdx].qty = Number(data.stocks[existingIdx].qty || 0) + qty;
+      } else {
+        data.stocks.push({ name, qty, salesQty: 0 });
+      }
+
+      saveData();
+      renderStocks();
+      document.getElementById("newItemName").value = "";
+      document.getElementById("newItemQty").value = "";
+
+      const target = existingIdx >= 0 ? data.stocks[existingIdx] : data.stocks[data.stocks.length - 1];
+      await syncSingleItemToSheet({
+        action: "add_new",
+        name: target.name,
+        qty: target.qty,
+        salesQty: target.salesQty || 0,
+        note: `新增/补货 ${target.name} (+${qty})`
+      });
+    }
+
+    async function syncSingleItemToSheet(payload) {
       const msg = document.getElementById("stockSyncMsg");
       if (!data.sheetUrl) {
-        msg.textContent = `本地已更新（${note}）。填入 Sheet 链接后可自动同步。`;
+        msg.textContent = `本地已更新（${payload.note}），请先保存 Sheet 链接。`;
         return;
       }
-      msg.textContent = "正在同步到 Google Sheet...";
+      msg.textContent = `正在同步【${payload.name}】到 Sheet...`;
+      try {
+        await fetch(data.sheetUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        msg.textContent = `✅ 已同步（${new Date().toLocaleTimeString()}）：${payload.note}`;
+      } catch (e) {
+        msg.textContent = `⚠️ 同步失败，请检查网络或 Apps Script 权限。`;
+      }
+    }
+
+    async function pushAllStocksToSheet() {
+      const msg = document.getElementById("stockSyncMsg");
+      if (!data.sheetUrl) return alert("请先填写并保存你的 Google Apps Script 链接");
+      msg.textContent = "正在全量推送到 Sheet...";
       try {
         await fetch(data.sheetUrl, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            action: "sync",
-            note,
-            updatedAt: new Date().toISOString(),
+            action: "sync_all",
             items: data.stocks
           })
         });
-        msg.textContent = `✅ 已同步至 Sheet（${new Date().toLocaleTimeString()} - ${note}）`;
+        msg.textContent = `✅ 已全量推送至 Sheet（${new Date().toLocaleTimeString()}）`;
       } catch (e) {
-        msg.textContent = "⚠️ 同步失败，请检查网络连接或 Sheet 链接。";
+        msg.textContent = "⚠️ 推送失败，请检查网络。";
       }
     }
 
     async function pullFromSheet() {
       const msg = document.getElementById("stockSyncMsg");
-      if (!data.sheetUrl) return alert("请先填写并保存你的 Google Apps Script 链接");
+      if (!data.sheetUrl) {
+        msg.textContent = "状态：请先填入 Google Apps Script 链接并保存。";
+        return;
+      }
       msg.textContent = "正在从 Sheet 读取货单...";
       try {
         const res = await fetch(data.sheetUrl);
         const json = await res.json();
         if (Array.isArray(json.items)) {
-          data.stocks = json.items.map((it, idx) => ({
-            id: Date.now() + idx,
-            name: it.name,
-            qty: Number(it.qty) || 0
-          }));
+          data.stocks = json.items.map(it => ({
+            name: String(it.name || "").trim(),
+            qty: Number(it.qty) || 0,
+            salesQty: Number(it.salesQty) || 0
+          })).filter(it => it.name);
           saveData();
           renderStocks();
-          msg.textContent = `✅ 已从 Sheet 拉取 ${data.stocks.length} 项货品`;
+          msg.textContent = `✅ 已与 Sheet 同步，共 ${data.stocks.length} 项货品（${new Date().toLocaleTimeString()}）`;
         }
       } catch (e) {
-        msg.textContent = "⚠️ 读取失败：请确认你的 Apps Script 已包含 doGet() 并允许任何人访问。";
+        msg.textContent = "⚠️ 读取失败：请确认 Apps Script 已部署且“谁可以访问”选了 Anyone。";
       }
     }
 
@@ -965,6 +1040,7 @@
     renderAccounts();
     renderCalendar();
     renderStocks();
+    if (data.sheetUrl) pullFromSheet();
   </script>
 </body>
 </html>
