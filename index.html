@@ -699,16 +699,18 @@
         indicator.classList.remove("dragging");
 
         const stepW = getStepWidth();
+        const maxOffset = stepW * 2;
         const deltaX = e.clientX - startX;
 
-        let targetIdx = currentTabIndex;
-        if (Math.abs(deltaX) > 22) {
-          targetIdx = deltaX > 0 ? currentTabIndex + 1 : currentTabIndex - 1;
-        } else {
-          const finalPx = currentOffsetPx + deltaX;
-          targetIdx = Math.round(finalPx / stepW);
-        }
+        // 计算滑块当前实际停在哪里的像素位置
+        let finalPx = currentOffsetPx + deltaX;
+        finalPx = Math.max(0, Math.min(maxOffset, finalPx));
+
+        // 滑块中心点落在哪一格（0 = 时间表, 1 = Stock, 2 = CCTV），就停在哪一个
+        const indicatorCenterPx = finalPx + stepW / 2;
+        let targetIdx = Math.floor(indicatorCenterPx / stepW);
         targetIdx = Math.max(0, Math.min(2, targetIdx));
+
         switchTab(tabNames[targetIdx], targetIdx);
       }
 
