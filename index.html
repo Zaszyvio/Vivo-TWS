@@ -6,21 +6,56 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>门店管理 Liquid Glass</title>
   <style>
-    :root {
+    /* ==================== 深色模式变量（纯黑底 + 黑白蓝液态玻璃） ==================== */
+    :root, [data-theme="dark"] {
       --blue: #2563eb;
       --blue-bright: #3b82f6;
-      --blue-ice: #93c5fd;
-      --white: #ffffff;
-      --black: #050811;
+      --blue-accent: #93c5fd;
+      --bg-page: #000000;
       --text: #f8fafc;
       --muted: #cbd5e1;
-      --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 100%);
-      --glass-border: rgba(255, 255, 255, 0.34);
+      --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+      --glass-border: rgba(255, 255, 255, 0.32);
       --glass-shadow:
-        0 14px 34px rgba(0, 0, 0, 0.55),
-        inset 0 1.5px 1px rgba(255, 255, 255, 0.55),
+        0 14px 34px rgba(0, 0, 0, 0.65),
+        inset 0 1.5px 1px rgba(255, 255, 255, 0.5),
         inset 0 -1px 1px rgba(59, 130, 246, 0.25);
+      --surface-soft: rgba(255, 255, 255, 0.08);
+      --surface-border: rgba(255, 255, 255, 0.22);
+      --input-bg: rgba(255, 255, 255, 0.1);
+      --placeholder: rgba(203, 213, 225, 0.6);
+      --tab-text: rgba(255, 255, 255, 0.68);
+      --tab-active-text: #ffffff;
+      --tab-active-shadow: 0 0 10px rgba(147, 197, 253, 0.85);
+      --indicator-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.28) 0%, rgba(147, 197, 253, 0.18) 50%, rgba(255, 255, 255, 0.24) 100%);
+      --indicator-border: rgba(255, 255, 255, 0.78);
     }
+
+    /* ==================== 浅色模式变量（纯白底 + 冰蓝液态玻璃） ==================== */
+    [data-theme="light"] {
+      --blue: #2563eb;
+      --blue-bright: #1d4ed8;
+      --blue-accent: #1d4ed8;
+      --bg-page: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --glass-bg: linear-gradient(145deg, rgba(37, 99, 235, 0.07) 0%, rgba(255, 255, 255, 0.78) 100%);
+      --glass-border: rgba(37, 99, 235, 0.22);
+      --glass-shadow:
+        0 10px 28px rgba(15, 23, 42, 0.07),
+        inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+        inset 0 -1px 1px rgba(37, 99, 235, 0.12);
+      --surface-soft: rgba(37, 99, 235, 0.06);
+      --surface-border: rgba(37, 99, 235, 0.18);
+      --input-bg: rgba(255, 255, 255, 0.85);
+      --placeholder: rgba(100, 116, 139, 0.75);
+      --tab-text: rgba(15, 23, 42, 0.62);
+      --tab-active-text: #1d4ed8;
+      --tab-active-shadow: 0 0 8px rgba(37, 99, 235, 0.25);
+      --indicator-bg: linear-gradient(145deg, rgba(37, 99, 235, 0.18) 0%, rgba(147, 197, 253, 0.26) 50%, rgba(255, 255, 255, 0.75) 100%);
+      --indicator-border: rgba(37, 99, 235, 0.55);
+    }
+
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       margin: 0;
@@ -28,14 +63,15 @@
       color: var(--text);
       min-height: 100vh;
       padding-bottom: 125px;
-      background-color: #000000;
+      background-color: var(--bg-page);
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
-    /* 黑白蓝高折射液态玻璃 */
+    /* 液态玻璃面板 */
     .glass {
       background: var(--glass-bg);
-      backdrop-filter: blur(26px) saturate(180%) brightness(1.06);
-      -webkit-backdrop-filter: blur(26px) saturate(180%) brightness(1.06);
+      backdrop-filter: blur(26px) saturate(180%);
+      -webkit-backdrop-filter: blur(26px) saturate(180%);
       border: 1px solid var(--glass-border);
       box-shadow: var(--glass-shadow);
     }
@@ -44,28 +80,47 @@
       position: sticky;
       top: 0;
       z-index: 20;
-      padding: 13px 16px;
+      padding: 12px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+      gap: 8px;
+      border-bottom: 1px solid var(--glass-border);
       border-radius: 0 0 22px 22px;
     }
     header h1 {
-      font-size: 17px;
+      font-size: 16px;
       margin: 0;
       font-weight: 700;
-      letter-spacing: 0.3px;
-      color: var(--white);
+      letter-spacing: 0.2px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .manager-pill {
       font-size: 11px;
-      padding: 4px 11px;
+      padding: 4px 9px;
       border-radius: 999px;
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.42), rgba(255, 255, 255, 0.14));
-      border: 1px solid rgba(255, 255, 255, 0.45);
-      color: var(--white);
+      background: rgba(37, 99, 235, 0.22);
+      border: 1px solid var(--glass-border);
+      color: var(--text);
       font-weight: 700;
+      white-space: nowrap;
+    }
+    .theme-btn {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--surface-soft);
+      border: 1px solid var(--glass-border);
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
     }
 
     .container { padding: 14px; max-width: 640px; margin: 0 auto; }
@@ -83,7 +138,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 8px;
-      color: var(--white);
+      color: var(--text);
     }
 
     /* 账号切换胶囊栏 */
@@ -97,8 +152,8 @@
       min-width: 0;
       padding: 9px 4px;
       border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.28);
-      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--surface-border);
+      background: var(--surface-soft);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       color: var(--muted);
@@ -112,10 +167,10 @@
       white-space: nowrap;
     }
     .acc-btn.active {
-      background: linear-gradient(145deg, rgba(59, 130, 246, 0.85), rgba(29, 78, 216, 0.9));
+      background: linear-gradient(145deg, #3b82f6, #1d4ed8);
       border-color: rgba(255, 255, 255, 0.75);
-      color: var(--white);
-      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.75);
+      color: #ffffff;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
     }
 
     /* 日历样式 */
@@ -126,13 +181,13 @@
       margin-bottom: 12px;
     }
     .cal-nav {
-      background: rgba(255, 255, 255, 0.14);
-      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: var(--surface-soft);
+      border: 1px solid var(--surface-border);
       border-radius: 11px;
       padding: 5px 12px;
       font-weight: 700;
       cursor: pointer;
-      color: var(--white);
+      color: var(--text);
     }
     .cal-weekdays, .cal-grid {
       display: grid;
@@ -143,34 +198,34 @@
     .cal-weekdays div {
       font-size: 11px;
       font-weight: 700;
-      color: var(--blue-ice);
+      color: var(--blue-accent);
       padding-bottom: 4px;
     }
     .cal-day {
       min-width: 0;
       height: 46px;
       border-radius: 12px;
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: var(--surface-soft);
+      border: 1px solid var(--surface-border);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       font-size: 13px;
       font-weight: 600;
-      color: var(--white);
+      color: var(--text);
       cursor: pointer;
       padding: 2px;
       transition: all 0.18s ease;
     }
     .cal-day.empty { background: transparent; border: none; cursor: default; }
     .cal-day.selected {
-      background: linear-gradient(145deg, rgba(59, 130, 246, 0.42), rgba(255, 255, 255, 0.16));
-      border: 1.5px solid var(--white);
-      box-shadow: 0 0 16px rgba(59, 130, 246, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+      background: rgba(37, 99, 235, 0.24);
+      border: 1.5px solid var(--blue-bright);
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
     }
     .cal-day.today {
-      border-color: var(--blue-ice);
+      border-color: var(--blue-accent);
     }
     .shift-dot {
       font-size: 9px;
@@ -188,9 +243,9 @@
     /* 黑白蓝统一色系班次标签 */
     .bg-morning { background: #2563eb; color: #ffffff; }
     .bg-evening { background: #1e3a8a; color: #dbeafe; border: 1px solid rgba(147, 197, 253, 0.5); }
-    .bg-offday { background: rgba(255, 255, 255, 0.22); color: #ffffff; }
-    .bg-unpaid { background: #0f172a; color: #93c5fd; border: 1px solid rgba(147, 197, 253, 0.4); }
-    .bg-annual { background: #ffffff; color: #0f172a; }
+    .bg-offday { background: #64748b; color: #ffffff; }
+    .bg-unpaid { background: #0f172a; color: #93c5fd; border: 1px solid rgba(147, 197, 253, 0.45); }
+    .bg-annual { background: #ffffff; color: #0f172a; border: 1px solid rgba(15, 23, 42, 0.2); }
     .bg-training { background: #38bdf8; color: #050811; }
 
     .name-grid {
@@ -204,25 +259,25 @@
       flex-direction: column;
       gap: 4px;
     }
-    .name-box label { font-size: 11px; color: var(--blue-ice); font-weight: 600; }
+    .name-box label { font-size: 11px; color: var(--blue-accent); font-weight: 600; }
 
     input, select, button {
       font-size: 13px;
       padding: 9px 11px;
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.28);
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--white);
+      border: 1px solid var(--surface-border);
+      background: var(--input-bg);
+      color: var(--text);
       outline: none;
       max-width: 100%;
     }
-    input::placeholder { color: rgba(203, 213, 225, 0.65); }
+    input::placeholder { color: var(--placeholder); }
     button.primary {
       background: linear-gradient(145deg, #3b82f6, #1d4ed8);
-      color: var(--white);
+      color: #ffffff;
       font-weight: 700;
-      border: 1px solid rgba(255, 255, 255, 0.55);
-      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
       cursor: pointer;
     }
 
@@ -235,9 +290,9 @@
       min-width: 0;
       padding: 10px 6px;
       border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.26);
-      background: rgba(255, 255, 255, 0.09);
-      color: var(--white);
+      border: 1px solid var(--surface-border);
+      background: var(--surface-soft);
+      color: var(--text);
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
@@ -250,8 +305,8 @@
       text-overflow: ellipsis;
     }
     .shift-choice:active {
-      background: rgba(59, 130, 246, 0.45);
-      border-color: var(--white);
+      background: rgba(59, 130, 246, 0.32);
+      border-color: var(--blue-bright);
     }
     .shift-choice .swatch {
       width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
@@ -263,14 +318,14 @@
       gap: 8px;
     }
     .stat-item {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: var(--surface-soft);
+      border: 1px solid var(--surface-border);
       border-radius: 14px;
       padding: 10px;
       font-size: 12px;
       color: var(--muted);
     }
-    .stat-item strong { display: block; font-size: 13px; margin-bottom: 4px; color: var(--white); }
+    .stat-item strong { display: block; font-size: 13px; margin-bottom: 4px; color: var(--text); }
 
     .row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
     .row input { flex: 1; min-width: 100px; }
@@ -279,38 +334,38 @@
       justify-content: space-between;
       align-items: center;
       padding: 10px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      border-bottom: 1px solid var(--surface-border);
       gap: 8px;
     }
     .stock-item:last-child { border-bottom: none; }
     .qty-controls { display: flex; align-items: center; gap: 6px; }
     .btn-sell {
-      background: rgba(255, 255, 255, 0.14);
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      color: var(--white);
+      background: var(--surface-soft);
+      border: 1px solid var(--surface-border);
+      color: var(--text);
       font-weight: 700;
       padding: 6px 10px;
       border-radius: 10px;
       cursor: pointer;
     }
     .btn-in {
-      background: rgba(59, 130, 246, 0.45);
-      border: 1px solid rgba(147, 197, 253, 0.65);
-      color: var(--white);
+      background: rgba(59, 130, 246, 0.25);
+      border: 1px solid rgba(59, 130, 246, 0.55);
+      color: var(--text);
       font-weight: 700;
       padding: 6px 10px;
       border-radius: 10px;
       cursor: pointer;
     }
-    .qty-num { min-width: 34px; text-align: center; font-weight: 800; font-size: 15px; color: var(--white); }
+    .qty-num { min-width: 34px; text-align: center; font-weight: 800; font-size: 15px; color: var(--text); }
 
     .cctv-card-btn {
       width: 100%;
       padding: 16px;
       border-radius: 16px;
-      background: linear-gradient(135deg, rgba(37, 99, 235, 0.45), rgba(255, 255, 255, 0.12));
-      border: 1px solid rgba(255, 255, 255, 0.42);
-      color: var(--white);
+      background: rgba(37, 99, 235, 0.22);
+      border: 1px solid var(--glass-border);
+      color: var(--text);
       font-size: 15px;
       font-weight: 700;
       margin-bottom: 10px;
@@ -320,7 +375,7 @@
       align-items: center;
     }
 
-    /* 黑白蓝透明液态玻璃底部悬浮胶囊栏 */
+    /* 透明液态玻璃底部悬浮胶囊栏 */
     .tab-bar-wrap {
       position: fixed;
       bottom: 16px;
@@ -338,10 +393,8 @@
       background-color: transparent;
       backdrop-filter: blur(22px) saturate(180%);
       -webkit-backdrop-filter: blur(22px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.32);
-      box-shadow:
-        0 14px 34px rgba(0, 0, 0, 0.65),
-        inset 0 1px 1px rgba(255, 255, 255, 0.45);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
       touch-action: none;
       user-select: none;
     }
@@ -352,18 +405,13 @@
       left: 6px;
       width: calc((100% - 12px) / 3);
       border-radius: 999px;
-      background: linear-gradient(
-        145deg,
-        rgba(255, 255, 255, 0.28) 0%,
-        rgba(147, 197, 253, 0.18) 50%,
-        rgba(255, 255, 255, 0.24) 100%
-      );
-      backdrop-filter: blur(18px) saturate(200%) brightness(1.15);
-      -webkit-backdrop-filter: blur(18px) saturate(200%) brightness(1.15);
-      border: 1.2px solid rgba(255, 255, 255, 0.78);
+      background: var(--indicator-bg);
+      backdrop-filter: blur(18px) saturate(200%) brightness(1.12);
+      -webkit-backdrop-filter: blur(18px) saturate(200%) brightness(1.12);
+      border: 1.2px solid var(--indicator-border);
       box-shadow:
-        0 8px 24px rgba(37, 99, 235, 0.35),
-        inset 0 1.5px 1.5px rgba(255, 255, 255, 0.85);
+        0 8px 24px rgba(37, 99, 235, 0.3),
+        inset 0 1.5px 1.5px rgba(255, 255, 255, 0.8);
       transform-origin: center center;
       transition: transform 0.52s cubic-bezier(0.34, 1.56, 0.64, 1);
       cursor: grab;
@@ -372,14 +420,8 @@
     .tab-indicator.dragging {
       transition: none;
       cursor: grabbing;
-      background: linear-gradient(
-        145deg,
-        rgba(255, 255, 255, 0.36) 0%,
-        rgba(147, 197, 253, 0.24) 50%,
-        rgba(255, 255, 255, 0.3) 100%
-      );
       box-shadow:
-        0 14px 32px rgba(59, 130, 246, 0.5),
+        0 14px 32px rgba(59, 130, 246, 0.45),
         inset 0 1.5px 1.5px rgba(255, 255, 255, 0.95);
     }
     .tab-btn {
@@ -388,7 +430,7 @@
       flex: 1;
       background: transparent !important;
       border: none !important;
-      color: rgba(255, 255, 255, 0.68);
+      color: var(--tab-text);
       padding: 7px 4px;
       font-size: 11px;
       font-weight: 700;
@@ -399,7 +441,7 @@
       cursor: pointer;
     }
     .tab-btn .icon { font-size: 18px; }
-    .tab-btn.active { color: #ffffff; text-shadow: 0 0 10px rgba(147, 197, 253, 0.85); }
+    .tab-btn.active { color: var(--tab-active-text); text-shadow: var(--tab-active-shadow); }
     .hidden { display: none !important; }
     .hint { font-size: 12px; color: var(--muted); line-height: 1.45; margin: 8px 0 0; }
   </style>
@@ -408,7 +450,10 @@
 
   <header class="glass">
     <h1>🏪 门店管理</h1>
-    <span class="manager-pill" id="headerBadge">👑 店长视角</span>
+    <div class="header-actions">
+      <button class="theme-btn" id="themeToggleBtn" onclick="cycleTheme()">🖥️ 自动</button>
+      <span class="manager-pill" id="headerBadge">👑 店长视角</span>
+    </div>
   </header>
 
   <div class="container" id="tab-schedule">
@@ -471,7 +516,7 @@
       <div class="card-title">
         <span>📊 店长总览（全店排班与工时统计）</span>
       </div>
-      <div id="todayAllStaff" style="font-size:12px;margin-bottom:10px;padding:10px;border-radius:14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);"></div>
+      <div id="todayAllStaff" style="font-size:12px;margin-bottom:10px;padding:10px;border-radius:14px;background:var(--surface-soft);border:1px solid var(--surface-border);"></div>
       <div class="stats-grid" id="monthlyStatsGrid"></div>
     </div>
   </div>
@@ -535,8 +580,37 @@
 
   <script>
     const KEY = "store_liquid_v2";
+    const THEME_KEY = "store_liquid_theme";
     const todayStr = new Date().toISOString().slice(0, 10);
 
+    // ==================== 浅色 / 深色 / 跟随手机主题切换 ====================
+    const themeModes = ["auto", "light", "dark"];
+    const themeLabels = { auto: "🖥️ 自动", light: "☀️ 浅色", dark: "🌙 深色" };
+    let currentThemeMode = localStorage.getItem(THEME_KEY) || "auto";
+    const systemDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    function applyTheme() {
+      const effective = currentThemeMode === "auto"
+        ? (systemDarkQuery.matches ? "dark" : "light")
+        : currentThemeMode;
+      document.documentElement.setAttribute("data-theme", effective);
+      const btn = document.getElementById("themeToggleBtn");
+      if (btn) btn.textContent = themeLabels[currentThemeMode];
+    }
+
+    function cycleTheme() {
+      const nextIdx = (themeModes.indexOf(currentThemeMode) + 1) % themeModes.length;
+      currentThemeMode = themeModes[nextIdx];
+      localStorage.setItem(THEME_KEY, currentThemeMode);
+      applyTheme();
+    }
+
+    systemDarkQuery.addEventListener("change", () => {
+      if (currentThemeMode === "auto") applyTheme();
+    });
+    applyTheme();
+
+    // ==================== 业务数据 ====================
     let data = JSON.parse(localStorage.getItem(KEY)) || {
       users: ["我（店长）", "员工 1", "员工 2", "员工 3"],
       activeUser: 0,
@@ -574,7 +648,7 @@
       indicator.style.transform = `translateX(${idx * 100}%)`;
     }
 
-    // 果冻感滑动切换（透明气泡 + 按住变大 1.30 倍 + 滑动微拉伸 + 松手回弹）
+    // 果冻感滑动切换
     (function initTabSwipe() {
       const bar = document.getElementById("glassTabBar");
       const indicator = document.getElementById("tabIndicator");
@@ -655,7 +729,7 @@
       });
 
       const isManager = data.activeUser === 0;
-      document.getElementById("headerBadge").textContent = isManager ? "👑 店长视角（完整资讯）" : "👤 员工视角：" + data.users[data.activeUser];
+      document.getElementById("headerBadge").textContent = isManager ? "👑 店长视角" : "👤 " + data.users[data.activeUser];
       document.getElementById("managerDashboard").classList.toggle("hidden", !isManager);
     }
 
@@ -747,9 +821,9 @@
 
       const daySummary = data.users.map((u, idx) => {
         const s = data.shifts[`${idx}_${selectedDate}`] || "未排班";
-        return `${u}：<b style="color:#fff">${s}</b>`;
+        return `${u}：<b>${s}</b>`;
       }).join(" ｜ ");
-      document.getElementById("todayAllStaff").innerHTML = `📅 <b style="color:#93c5fd">${selectedDate} 全店班表：</b><br/>${daySummary}`;
+      document.getElementById("todayAllStaff").innerHTML = `📅 <b style="color:var(--blue-accent)">${selectedDate} 全店班表：</b><br/>${daySummary}`;
 
       const monthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`;
       const statsHtml = data.users.map((u, idx) => {
