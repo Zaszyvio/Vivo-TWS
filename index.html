@@ -320,7 +320,7 @@
       align-items: center;
     }
 
-    /* 黑白蓝液态玻璃底部悬浮胶囊栏 */
+    /* 黑白蓝透明液态玻璃底部悬浮胶囊栏 */
     .tab-bar-wrap {
       position: fixed;
       bottom: 16px;
@@ -345,7 +345,7 @@
       touch-action: none;
       user-select: none;
     }
-  .tab-indicator {
+    .tab-indicator {
       position: absolute;
       top: 6px;
       bottom: 6px;
@@ -354,9 +354,9 @@
       border-radius: 999px;
       background: linear-gradient(
         145deg,
-        rgba(255, 255, 255, 0.36) 0%,
-        rgba(147, 197, 253, 0.22) 50%,
-        rgba(255, 255, 255, 0.3) 100%
+        rgba(255, 255, 255, 0.28) 0%,
+        rgba(147, 197, 253, 0.18) 50%,
+        rgba(255, 255, 255, 0.24) 100%
       );
       backdrop-filter: blur(18px) saturate(200%) brightness(1.15);
       -webkit-backdrop-filter: blur(18px) saturate(200%) brightness(1.15);
@@ -374,9 +374,9 @@
       cursor: grabbing;
       background: linear-gradient(
         145deg,
-        rgba(255, 255, 255, 0.44) 0%,
-        rgba(147, 197, 253, 0.28) 50%,
-        rgba(255, 255, 255, 0.36) 100%
+        rgba(255, 255, 255, 0.36) 0%,
+        rgba(147, 197, 253, 0.24) 50%,
+        rgba(255, 255, 255, 0.3) 100%
       );
       box-shadow:
         0 14px 32px rgba(59, 130, 246, 0.5),
@@ -384,11 +384,11 @@
     }
     .tab-btn {
       position: relative;
-      z-index: 1;
+      z-index: 2;
       flex: 1;
       background: transparent !important;
       border: none !important;
-      color: rgba(255, 255, 255, 0.78);
+      color: rgba(255, 255, 255, 0.68);
       padding: 7px 4px;
       font-size: 11px;
       font-weight: 700;
@@ -399,7 +399,7 @@
       cursor: pointer;
     }
     .tab-btn .icon { font-size: 18px; }
-    .tab-btn.active { color: #1d4ed8; }
+    .tab-btn.active { color: #ffffff; text-shadow: 0 0 10px rgba(147, 197, 253, 0.85); }
     .hidden { display: none !important; }
     .hint { font-size: 12px; color: var(--muted); line-height: 1.45; margin: 8px 0 0; }
   </style>
@@ -518,7 +518,7 @@
     </div>
   </div>
 
- <div class="tab-bar-wrap">
+  <div class="tab-bar-wrap">
     <nav class="tab-bar" id="glassTabBar">
       <div class="tab-indicator" id="tabIndicator"></div>
       <button class="tab-btn active" data-tab="schedule" data-index="0" onclick="switchTab('schedule', 0, this)">
@@ -556,7 +556,7 @@
       localStorage.setItem(KEY, JSON.stringify(data));
     }
 
-   const tabNames = ["schedule", "stock", "cctv"];
+    const tabNames = ["schedule", "stock", "cctv"];
     let currentTabIndex = 0;
 
     function switchTab(name, idx, btn) {
@@ -571,11 +571,10 @@
 
       const indicator = document.getElementById("tabIndicator");
       indicator.classList.remove("dragging");
-      indicator.style.removeProperty("--drag-x");
       indicator.style.transform = `translateX(${idx * 100}%)`;
     }
 
-    // 果冻感滑动切换（按住变大 + 滑动微拉伸 + 松手回弹）
+    // 果冻感滑动切换（透明气泡 + 按住变大 1.30 倍 + 滑动微拉伸 + 松手回弹）
     (function initTabSwipe() {
       const bar = document.getElementById("glassTabBar");
       const indicator = document.getElementById("tabIndicator");
@@ -598,8 +597,7 @@
         indicator.classList.add("dragging");
         bar.setPointerCapture(e.pointerId);
 
-        // 按下立刻变大一点（1.14倍）
-        indicator.style.transform = `translateX(${currentOffsetPx}px) scale(1.30, 1.28)`;
+        indicator.style.transform = `translateX(${currentOffsetPx}px) scale(1.30, 1.24)`;
       });
 
       bar.addEventListener("pointermove", (e) => {
@@ -611,14 +609,12 @@
         lastX = e.clientX;
 
         let nextPx = currentOffsetPx + deltaX;
-        // 边缘轻微橡皮筋阻力
         if (nextPx < 0) nextPx = nextPx * 0.25;
         if (nextPx > maxOffset) nextPx = maxOffset + (nextPx - maxOffset) * 0.25;
 
-        // 滑动时横向微微拉长、纵向略扁一点，像果冻被推着走
-        const stretch = Math.min(0.14, Math.abs(velocityX) * 0.008);
-        const scaleX = 1.14 + stretch;
-        const scaleY = 1.12 - stretch * 0.45;
+        const stretch = Math.min(0.16, Math.abs(velocityX) * 0.009);
+        const scaleX = 1.30 + stretch;
+        const scaleY = 1.24 - stretch * 0.45;
 
         indicator.style.transform = `translateX(${nextPx}px) scale(${scaleX.toFixed(3)}, ${scaleY.toFixed(3)})`;
       });
@@ -633,39 +629,6 @@
 
         let targetIdx = currentTabIndex;
         if (Math.abs(deltaX) > 22) {
-          targetIdx = deltaX > 0 ? currentTabIndex + 1 : currentTabIndex - 1;
-        } else {
-          const finalPx = currentOffsetPx + deltaX;
-          targetIdx = Math.round(finalPx / stepW);
-        }
-        targetIdx = Math.max(0, Math.min(2, targetIdx));
-        switchTab(tabNames[targetIdx], targetIdx);
-      }
-
-      bar.addEventListener("pointerup", finishDrag);
-      bar.addEventListener("pointercancel", finishDrag);
-    })();
-
-      bar.addEventListener("pointermove", (e) => {
-        if (!isDragging) return;
-        const stepW = getStepWidth();
-        const maxOffset = stepW * 2;
-        const deltaX = e.clientX - startX;
-        let nextPx = currentOffsetPx + deltaX;
-        if (nextPx < 0) nextPx = 0;
-        if (nextPx > maxOffset) nextPx = maxOffset;
-        indicator.style.transform = `translateX(${nextPx}px) scale(1.04)`;
-      });
-
-      function finishDrag(e) {
-        if (!isDragging) return;
-        isDragging = false;
-        const stepW = getStepWidth();
-        const deltaX = e.clientX - startX;
-
-        // 滑动距离超过 25px 优先按方向切，否则按滑块所在位置吸附
-        let targetIdx = currentTabIndex;
-        if (Math.abs(deltaX) > 25) {
           targetIdx = deltaX > 0 ? currentTabIndex + 1 : currentTabIndex - 1;
         } else {
           const finalPx = currentOffsetPx + deltaX;
