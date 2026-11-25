@@ -502,16 +502,16 @@
     </div>
   </div>
 
-  <div class="tab-bar-wrap">
-    <nav class="tab-bar">
+ <div class="tab-bar-wrap">
+    <nav class="tab-bar" id="glassTabBar">
       <div class="tab-indicator" id="tabIndicator"></div>
-      <button class="tab-btn active" onclick="switchTab('schedule', 0, this)">
+      <button class="tab-btn active" data-tab="schedule" data-index="0" onclick="switchTab('schedule', 0, this)">
         <span class="icon">📅</span><span>时间表</span>
       </button>
-      <button class="tab-btn" onclick="switchTab('stock', 1, this)">
+      <button class="tab-btn" data-tab="stock" data-index="1" onclick="switchTab('stock', 1, this)">
         <span class="icon">📦</span><span>Stock</span>
       </button>
-      <button class="tab-btn" onclick="switchTab('cctv', 2, this)">
+      <button class="tab-btn" data-tab="cctv" data-index="2" onclick="switchTab('cctv', 2, this)">
         <span class="icon">📷</span><span>CCTV</span>
       </button>
     </nav>
