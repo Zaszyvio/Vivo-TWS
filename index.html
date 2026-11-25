@@ -335,19 +335,15 @@
       display: flex;
       padding: 6px;
       border-radius: 999px;
-      background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.24) 0%,
-        rgba(59, 130, 246, 0.14) 50%,
-        rgba(255, 255, 255, 0.2) 100%
-      );
-      backdrop-filter: blur(32px) saturate(200%) brightness(1.1);
-      -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(1.1);
-      border: 1.2px solid rgba(255, 255, 255, 0.52);
+      background-color: transparent;
+      backdrop-filter: blur(22px) saturate(180%);
+      -webkit-backdrop-filter: blur(22px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.32);
       box-shadow:
-        0 18px 38px rgba(0, 0, 0, 0.65),
-        inset 0 2px 2px rgba(255, 255, 255, 0.72),
-        inset 0 -2px 3px rgba(37, 99, 235, 0.35);
+        0 14px 34px rgba(0, 0, 0, 0.65),
+        inset 0 1px 1px rgba(255, 255, 255, 0.45);
+      touch-action: none;
+      user-select: none;
     }
     .tab-indicator {
       position: absolute;
@@ -356,11 +352,19 @@
       left: 6px;
       width: calc((100% - 12px) / 3);
       border-radius: 999px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(219, 234, 254, 0.85) 100%);
-      border: 1px solid #ffffff;
-      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.45), inset 0 1px 1px #ffffff;
-      transition: transform 0.35s cubic-bezier(0.22, 1.25, 0.36, 1);
-      pointer-events: none;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(219, 234, 254, 0.88) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow:
+        0 4px 16px rgba(59, 130, 246, 0.42),
+        inset 0 1px 1px #ffffff;
+      transition: transform 0.34s cubic-bezier(0.2, 1.28, 0.35, 1), width 0.18s ease;
+      cursor: grab;
+      z-index: 1;
+    }
+    .tab-indicator.dragging {
+      transition: none;
+      cursor: grabbing;
+      transform: scale(1.04) translateX(var(--drag-x, 0px));
     }
     .tab-btn {
       position: relative;
