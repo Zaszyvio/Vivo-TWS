@@ -970,13 +970,14 @@
 
     async function syncSingleItemToSheet(payload) {
       const msg = document.getElementById("stockSyncMsg");
-      if (!data.sheetUrl) {
+      const url = (document.getElementById("sheetUrlInput")?.value || data.sheetUrl || "").trim();
+      if (!url) {
         msg.textContent = `本地已更新（${payload.note}），请先保存 Sheet 链接。`;
         return;
       }
       msg.textContent = `正在同步【${payload.name}】到 Sheet...`;
       try {
-        await fetch(data.sheetUrl, {
+        await fetch(url, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
@@ -985,6 +986,27 @@
         msg.textContent = `✅ 已同步（${new Date().toLocaleTimeString()}）：${payload.note}`;
       } catch (e) {
         msg.textContent = `⚠️ 同步失败，请检查网络或 Apps Script 权限。`;
+      }
+    }
+
+    async function pushAllStocksToSheet() {
+      const msg = document.getElementById("stockSyncMsg");
+      const url = (document.getElementById("sheetUrlInput")?.value || data.sheetUrl || "").trim();
+      if (!url) return alert("请先填写并保存你的 Google Apps Script 链接");
+      msg.textContent = "正在全量推送到 Sheet...";
+      try {
+        await fetch(url, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "sync_all",
+            items: data.stocks
+          })
+        });
+        msg.textContent = `✅ 已全量推送至 Sheet（${new Date().toLocaleTimeString()}）`;
+      } catch (e) {
+        msg.textContent = "⚠️ 推送失败，请检查网络。";
       }
     }
 
@@ -1031,31 +1053,6 @@
         } else {
           msg.textContent = `⚠️ 读取失败（${e.message}）：请确认 Apps Script 已部署“Anyone”访问并包含 doGet()。`;
         }
-      }
-    }
-
-    async function pullFromSheet() {
-      const msg = document.getElementById("stockSyncMsg");
-      if (!data.sheetUrl) {
-        msg.textContent = "状态：请先填入 Google Apps Script 链接并保存。";
-        return;
-      }
-      msg.textContent = "正在从 Sheet 读取货单...";
-      try {
-        const res = await fetch(data.sheetUrl);
-        const json = await res.json();
-        if (Array.isArray(json.items)) {
-          data.stocks = json.items.map(it => ({
-            name: String(it.name || "").trim(),
-            qty: Number(it.qty) || 0,
-            salesQty: Number(it.salesQty) || 0
-          })).filter(it => it.name);
-          saveData();
-          renderStocks();
-          msg.textContent = `✅ 已与 Sheet 同步，共 ${data.stocks.length} 项货品（${new Date().toLocaleTimeString()}）`;
-        }
-      } catch (e) {
-        msg.textContent = "⚠️ 读取失败：请确认 Apps Script 已部署且“谁可以访问”选了 Anyone。";
       }
     }
 
