@@ -540,23 +540,19 @@
         <button class="primary" onclick="saveSheetUrl()">保存</button>
       </div>
       <div class="row" style="margin-bottom:0;">
-        <button style="flex:1;font-weight:700;" onclick="pullFromSheet()">⬇️ 从 Sheet 同步货单</button>
-        <button class="primary" style="flex:1;" onclick="pushAllStocksToSheet()">⬆️ 全量推送到 Sheet</button>
+        <button style="flex:1;font-weight:700;" onclick="pullFromSheet()">⬇️ 从 Sheet 拉取货单</button>
+        <select id="stockCatFilter" onchange="renderStocks()" style="max-width:125px;">
+          <option value="ALL">全部货品</option>
+          <option value="Phone">Phone</option>
+          <option value="Accessory">Accessory</option>
+        </select>
       </div>
       <p class="hint" id="stockSyncMsg">状态：等待连接 Google Sheet...</p>
     </div>
 
     <div class="card glass">
-      <div class="card-title"><span>➕ 新增货品（同步到 Sheet）</span></div>
-      <div class="row" style="margin-bottom:0;">
-        <input type="text" id="newItemName" placeholder="货品名称" />
-        <input type="number" id="newItemQty" placeholder="数量" style="max-width:90px;" />
-        <button class="primary" onclick="addStockItem()">添加</button>
-      </div>
-    </div>
-
-    <div class="card glass">
       <div class="card-title"><span>📦 店内 Stock 清单（退货 / 加1 / 减1）</span></div>
+      <input type="text" id="stockSearchInput" oninput="renderStocks()" placeholder="搜索型号 / 颜色..." style="width:100%;margin-bottom:10px;" />
       <div id="stockList"></div>
     </div>
   </div>
@@ -590,7 +586,7 @@
   </div>
 
   <script>
-    const KEY = "store_liquid_v3";
+    const KEY = "store_liquid_v4";
     const THEME_KEY = "store_liquid_theme";
     const todayStr = new Date().toISOString().slice(0, 10);
 
@@ -875,7 +871,7 @@
       document.getElementById("monthlyStatsGrid").innerHTML = statsHtml;
     }
 
-    // ==================== Stock 功能（跟 Sheet 同步 + 退货/加1/减1） ====================
+    // ==================== Stock 功能（对接你的 Apps Script） ====================
     const sheetInputEl = document.getElementById("sheetUrlInput");
     if (sheetInputEl) sheetInputEl.value = data.sheetUrl || "";
 
@@ -889,93 +885,93 @@
     function renderStocks() {
       const list = document.getElementById("stockList");
       if (!list) return;
-      if (!data.stocks || !data.stocks.length) {
-        list.innerHTML = `<p class="hint">Sheet 暂无货品，请先添加或点击“从 Sheet 同步货单”。</p>`;
+
+      const cat = document.getElementById("stockCatFilter")?.value || "ALL";
+      const kw = (document.getElementById("stockSearchInput")?.value || "").trim().toLowerCase();
+
+      const filtered = (data.stocks || []).filter(item => {
+        const matchCat = cat === "ALL" || item.category === cat;
+        const matchKw = !kw ||
+          String(item.model || "").toLowerCase().includes(kw) ||
+          String(item.color || "").toLowerCase().includes(kw);
+        return matchCat && matchKw;
+      });
+
+      if (!filtered.length) {
+        list.innerHTML = `<p class="hint">暂无匹配货品，请检查 Sheet 或点击“从 Sheet 拉取货单”。</p>`;
         return;
       }
-      list.innerHTML = data.stocks.map((s, idx) => `
-        <div class="stock-item">
-          <div style="min-width:0;">
-            <strong style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.name}</strong>
-            <span style="font-size:11px;color:var(--muted);">库存: <b style="color:var(--text)">${s.qty}</b> ｜ Sales Qty: <b style="color:var(--blue-accent)">${s.salesQty || 0}</b></span>
+
+      list.innerHTML = filtered.map(item => {
+        const realIdx = data.stocks.indexOf(item);
+        const subInfo = [
+          item.category || "",
+          item.color || "",
+          item.price ? `RM${item.price}` : ""
+        ].filter(Boolean).join(" · ");
+
+        return `
+          <div class="stock-item">
+            <div style="min-width:0;">
+              <strong style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.model}</strong>
+              <span style="font-size:11px;color:var(--muted);">${subInfo ? subInfo + " ｜ " : ""}Stock: <b style="color:var(--text)">${item.stock}</b> ｜ Sales QTY: <b style="color:var(--blue-accent)">${item.sold || 0}</b></span>
+            </div>
+            <div class="qty-controls">
+              <button class="btn-return" onclick="handleStockAction(${realIdx}, 'return')">退货</button>
+              <button class="btn-in" onclick="handleStockAction(${realIdx}, 'add')">加1</button>
+              <button class="btn-sell" onclick="handleStockAction(${realIdx}, 'minus')">减1</button>
+            </div>
           </div>
-          <div class="qty-controls">
-            <button class="btn-return" onclick="handleStockAction(${idx}, 'return')">退货</button>
-            <button class="btn-in" onclick="handleStockAction(${idx}, 'add')">加1</button>
-            <button class="btn-sell" onclick="handleStockAction(${idx}, 'minus')">减1</button>
-          </div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
     async function handleStockAction(idx, type) {
       const item = data.stocks[idx];
       if (!item) return;
 
-      let changeText = "";
+      let curStock = Number(item.stock) || 0;
+      let curSold = Number(item.sold) || 0;
+      let note = "";
+
       if (type === "add") {
-        item.qty = Number(item.qty || 0) + 1;
-        changeText = `加1 -> 库存 ${item.qty}`;
+        curStock = curStock + 1;
+        note = `加1 -> Stock ${curStock}`;
       } else if (type === "minus") {
-        if (Number(item.qty || 0) <= 0) {
-          return alert(`【${item.name}】库存已为 0，无法再减 1`);
+        if (curStock <= 0) {
+          return alert(`【${item.model}】Stock 已为 0，无法再减 1`);
         }
-        item.qty = Number(item.qty || 0) - 1;
-        item.salesQty = Number(item.salesQty || 0) + 1;
-        changeText = `减1 -> 库存 ${item.qty}，Sales Qty ${item.salesQty}`;
+        curStock = curStock - 1;
+        curSold = curSold + 1;
+        note = `减1 -> Stock ${curStock}，Sales QTY ${curSold}`;
       } else if (type === "return") {
-        item.qty = Number(item.qty || 0) + 1;
-        item.salesQty = Math.max(0, Number(item.salesQty || 0) - 1);
-        changeText = `退货 -> 库存 ${item.qty}，Sales Qty ${item.salesQty}`;
+        curStock = curStock + 1;
+        curSold = Math.max(0, curSold - 1);
+        note = `退货 -> Stock ${curStock}，Sales QTY ${curSold}`;
       }
 
+      item.stock = curStock;
+      item.sold = curSold;
       saveData();
       renderStocks();
 
-      await syncSingleItemToSheet({
-        action: type,
-        name: item.name,
-        qty: item.qty,
-        salesQty: item.salesQty || 0,
-        note: `${item.name} ${changeText}`
+      await syncRowToSheet({
+        sheet: item.sheet,
+        row: item.row,
+        stock: item.stock,
+        sold: item.sold,
+        note: `${item.model} ${note}`
       });
     }
 
-    async function addStockItem() {
-      const name = document.getElementById("newItemName").value.trim();
-      const qty = parseInt(document.getElementById("newItemQty").value, 10) || 0;
-      if (!name) return alert("请输入货品名称");
-
-      const existingIdx = data.stocks.findIndex(s => s.name === name);
-      if (existingIdx >= 0) {
-        data.stocks[existingIdx].qty = Number(data.stocks[existingIdx].qty || 0) + qty;
-      } else {
-        data.stocks.push({ name, qty, salesQty: 0 });
-      }
-
-      saveData();
-      renderStocks();
-      document.getElementById("newItemName").value = "";
-      document.getElementById("newItemQty").value = "";
-
-      const target = existingIdx >= 0 ? data.stocks[existingIdx] : data.stocks[data.stocks.length - 1];
-      await syncSingleItemToSheet({
-        action: "add_new",
-        name: target.name,
-        qty: target.qty,
-        salesQty: target.salesQty || 0,
-        note: `新增/补货 ${target.name} (+${qty})`
-      });
-    }
-
-    async function syncSingleItemToSheet(payload) {
+    async function syncRowToSheet(payload) {
       const msg = document.getElementById("stockSyncMsg");
       const url = (document.getElementById("sheetUrlInput")?.value || data.sheetUrl || "").trim();
       if (!url) {
         msg.textContent = `本地已更新（${payload.note}），请先保存 Sheet 链接。`;
         return;
       }
-      msg.textContent = `正在同步【${payload.name}】到 Sheet...`;
+      msg.textContent = `正在同步【${payload.note}】到 Sheet...`;
       try {
         await fetch(url, {
           method: "POST",
@@ -985,28 +981,7 @@
         });
         msg.textContent = `✅ 已同步（${new Date().toLocaleTimeString()}）：${payload.note}`;
       } catch (e) {
-        msg.textContent = `⚠️ 同步失败，请检查网络或 Apps Script 权限。`;
-      }
-    }
-
-    async function pushAllStocksToSheet() {
-      const msg = document.getElementById("stockSyncMsg");
-      const url = (document.getElementById("sheetUrlInput")?.value || data.sheetUrl || "").trim();
-      if (!url) return alert("请先填写并保存你的 Google Apps Script 链接");
-      msg.textContent = "正在全量推送到 Sheet...";
-      try {
-        await fetch(url, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "sync_all",
-            items: data.stocks
-          })
-        });
-        msg.textContent = `✅ 已全量推送至 Sheet（${new Date().toLocaleTimeString()}）`;
-      } catch (e) {
-        msg.textContent = "⚠️ 推送失败，请检查网络。";
+        msg.textContent = `⚠️ 同步失败，请检查网络连接或 Apps Script 权限。`;
       }
     }
 
@@ -1022,36 +997,42 @@
 
       msg.textContent = "正在从 Sheet 读取货单...";
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 8000);
+      const timer = setTimeout(() => controller.abort(), 10000);
 
       try {
         const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
         clearTimeout(timer);
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
         const text = await res.text();
         const json = JSON.parse(text);
+        const list = Array.isArray(json) ? json : (Array.isArray(json.items) ? json.items : null);
 
-        if (!Array.isArray(json.items)) {
-          throw new Error("返回格式缺少 items 数组");
+        if (!list) {
+          throw new Error("返回数据不是数组");
         }
 
-        data.stocks = json.items.map(it => ({
-          name: String(it.name || "").trim(),
-          qty: Number(it.qty) || 0,
-          salesQty: Number(it.salesQty) || 0
-        })).filter(it => it.name);
+        data.stocks = list.map(it => ({
+          row: Number(it.row),
+          sheet: String(it.sheet || "Daily Sales-Phone"),
+          category: String(it.category || ""),
+          model: String(it.model || "").trim(),
+          color: String(it.color || "").trim(),
+          price: Number(it.price) || 0,
+          sold: Number(it.sold) || 0,
+          stock: Number(it.stock) || 0,
+          demo: Number(it.demo) || 0
+        })).filter(it => it.model && it.row > 0);
 
         saveData();
         renderStocks();
-        msg.textContent = `✅ 已与 Sheet 同步，共 ${data.stocks.length} 项货品（${new Date().toLocaleTimeString()}）`;
+        msg.textContent = `✅ 已同步 ${data.stocks.length} 项货品（${new Date().toLocaleTimeString()}）`;
       } catch (e) {
         clearTimeout(timer);
         if (e.name === "AbortError") {
-          msg.textContent = "⚠️ 读取超时（8秒）：请检查网络或 Apps Script 链接是否正确。";
+          msg.textContent = "⚠️ 读取超时（10秒）：请检查网络或 Apps Script 链接。";
         } else {
-          msg.textContent = `⚠️ 读取失败（${e.message}）：请确认 Apps Script 已部署“Anyone”访问并包含 doGet()。`;
+          msg.textContent = `⚠️ 读取失败（${e.message}）：请确认 Apps Script 已部署“Anyone”访问。`;
         }
       }
     }
