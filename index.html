@@ -540,13 +540,79 @@
       localStorage.setItem(KEY, JSON.stringify(data));
     }
 
+   const tabNames = ["schedule", "stock", "cctv"];
+    let currentTabIndex = 0;
+
     function switchTab(name, idx, btn) {
-      ["schedule", "stock", "cctv"].forEach(t => document.getElementById("tab-" + t).classList.add("hidden"));
+      currentTabIndex = idx;
+      tabNames.forEach(t => document.getElementById("tab-" + t).classList.add("hidden"));
       document.getElementById("tab-" + name).classList.remove("hidden");
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById("tabIndicator").style.transform = `translateX(${idx * 100}%)`;
+
+      const btns = document.querySelectorAll(".tab-btn");
+      btns.forEach(b => b.classList.remove("active"));
+      const targetBtn = btn || btns[idx];
+      if (targetBtn) targetBtn.classList.add("active");
+
+      const indicator = document.getElementById("tabIndicator");
+      indicator.classList.remove("dragging");
+      indicator.style.removeProperty("--drag-x");
+      indicator.style.transform = `translateX(${idx * 100}%)`;
     }
+
+    // iPhone 风格手指滑动切换
+    (function initTabSwipe() {
+      const bar = document.getElementById("glassTabBar");
+      const indicator = document.getElementById("tabIndicator");
+      if (!bar || !indicator) return;
+
+      let isDragging = false;
+      let startX = 0;
+      let currentOffsetPx = 0;
+
+      function getStepWidth() {
+        return (bar.clientWidth - 12) / 3;
+      }
+
+      bar.addEventListener("pointerdown", (e) => {
+        isDragging = true;
+        startX = e.clientX;
+        currentOffsetPx = currentTabIndex * getStepWidth();
+        indicator.classList.add("dragging");
+        bar.setPointerCapture(e.pointerId);
+      });
+
+      bar.addEventListener("pointermove", (e) => {
+        if (!isDragging) return;
+        const stepW = getStepWidth();
+        const maxOffset = stepW * 2;
+        const deltaX = e.clientX - startX;
+        let nextPx = currentOffsetPx + deltaX;
+        if (nextPx < 0) nextPx = 0;
+        if (nextPx > maxOffset) nextPx = maxOffset;
+        indicator.style.transform = `translateX(${nextPx}px) scale(1.04)`;
+      });
+
+      function finishDrag(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        const stepW = getStepWidth();
+        const deltaX = e.clientX - startX;
+
+        // 滑动距离超过 25px 优先按方向切，否则按滑块所在位置吸附
+        let targetIdx = currentTabIndex;
+        if (Math.abs(deltaX) > 25) {
+          targetIdx = deltaX > 0 ? currentTabIndex + 1 : currentTabIndex - 1;
+        } else {
+          const finalPx = currentOffsetPx + deltaX;
+          targetIdx = Math.round(finalPx / stepW);
+        }
+        targetIdx = Math.max(0, Math.min(2, targetIdx));
+        switchTab(tabNames[targetIdx], targetIdx);
+      }
+
+      bar.addEventListener("pointerup", finishDrag);
+      bar.addEventListener("pointercancel", finishDrag);
+    })();
 
     function renderAccounts() {
       const bar = document.getElementById("accountBar");
