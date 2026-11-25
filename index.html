@@ -988,23 +988,49 @@
       }
     }
 
-    async function pushAllStocksToSheet() {
+    async function pullFromSheet() {
       const msg = document.getElementById("stockSyncMsg");
-      if (!data.sheetUrl) return alert("请先填写并保存你的 Google Apps Script 链接");
-      msg.textContent = "正在全量推送到 Sheet...";
+      const url = (document.getElementById("sheetUrlInput")?.value || data.sheetUrl || "").trim();
+      if (!url) {
+        msg.textContent = "状态：请先填入 Google Apps Script 链接并保存。";
+        return;
+      }
+      data.sheetUrl = url;
+      saveData();
+
+      msg.textContent = "正在从 Sheet 读取货单...";
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
+
       try {
-        await fetch(data.sheetUrl, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "sync_all",
-            items: data.stocks
-          })
-        });
-        msg.textContent = `✅ 已全量推送至 Sheet（${new Date().toLocaleTimeString()}）`;
+        const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
+        clearTimeout(timer);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        const text = await res.text();
+        const json = JSON.parse(text);
+
+        if (!Array.isArray(json.items)) {
+          throw new Error("返回格式缺少 items 数组");
+        }
+
+        data.stocks = json.items.map(it => ({
+          name: String(it.name || "").trim(),
+          qty: Number(it.qty) || 0,
+          salesQty: Number(it.salesQty) || 0
+        })).filter(it => it.name);
+
+        saveData();
+        renderStocks();
+        msg.textContent = `✅ 已与 Sheet 同步，共 ${data.stocks.length} 项货品（${new Date().toLocaleTimeString()}）`;
       } catch (e) {
-        msg.textContent = "⚠️ 推送失败，请检查网络。";
+        clearTimeout(timer);
+        if (e.name === "AbortError") {
+          msg.textContent = "⚠️ 读取超时（8秒）：请检查网络或 Apps Script 链接是否正确。";
+        } else {
+          msg.textContent = `⚠️ 读取失败（${e.message}）：请确认 Apps Script 已部署“Anyone”访问并包含 doGet()。`;
+        }
       }
     }
 
