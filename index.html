@@ -269,7 +269,6 @@
     }
     .qr-box img { width: 170px; height: 170px; display: block; }
 
-    /* 液态玻璃 Release Notes 弹窗 */
     .lg-backdrop {
       position: fixed;
       inset: 0;
@@ -341,7 +340,6 @@
       cursor: pointer;
     }
 
-    /* 底部选择栏（独立 --tab-bar-opacity 滑块调节 + 实感毛玻璃底色） */
     .tab-bar-wrap {
       position: fixed;
       bottom: calc(var(--safe-bottom) + 18px);
@@ -600,11 +598,11 @@
       {
         version: "v1.0.6",
         tag: "Latest",
-        title: "Bottom Bar Opacity Slider & Release Notes",
+        title: "WebView GSI Guard & Bottom Bar Opacity",
         items: [
-          "Added independent slider to adjust bottom navigation bar opacity and improved glass contrast.",
-          "Added Liquid Glass Release Notes modal with automatic new-version prompt and manual viewer.",
-          "Integrated Google Identity Services sign-in gate and Manager/Staff role separation."
+          "Skipped GSI frame loading inside Android WebView to prevent white screen hangs.",
+          "Added independent slider to adjust bottom navigation bar opacity.",
+          "Added Liquid Glass Release Notes modal and Manager/Staff role separation."
         ]
       },
       {
@@ -798,7 +796,7 @@
       }
     };
 
-    const KEY = "store_liquid_v8";
+    const KEY = "store_liquid_v9";
     const THEME_KEY = "store_liquid_theme";
     const todayStr = new Date().toISOString().slice(0, 10);
 
@@ -829,6 +827,11 @@
 
     function saveData() {
       localStorage.setItem(KEY, JSON.stringify(data));
+    }
+
+    function isAndroidWebView() {
+      const ua = navigator.userAgent || "";
+      return /Android/i.test(ua) && (/\bwv\b/i.test(ua) || !/Chrome\/[.0-9]* Mobile/i.test(ua));
     }
 
     function renderReleaseNotes() {
@@ -939,6 +942,7 @@
     }
 
     function initGooglePopup() {
+      if (isAndroidWebView()) return;
       if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.startsWith("YOUR_GOOGLE_CLIENT_ID")) return;
       if (window.google && window.google.accounts && window.google.accounts.id) {
         window.google.accounts.id.initialize({
