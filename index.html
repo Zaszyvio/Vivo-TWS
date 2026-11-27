@@ -494,8 +494,7 @@
 
   <script>
     const APP_VERSION = "v1.0.6";
-    // 如需官方 Google 弹窗，请替换为你的 OAuth 2.0 Web Client ID
-    const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+    const GOOGLE_CLIENT_ID = "281992057610-o1koq7vorbau2vsmathogrld0rfsbhcd.apps.googleusercontent.com";
 
     const urlParams = new URLSearchParams(window.location.search);
     const APP_ROLE = urlParams.get("role") === "staff" ? "staff" : "manager";
@@ -932,7 +931,8 @@
         }
         if (!hasMoved) return;
         const stepW = getStepWidth();
-        const nextPx = Math.max(0, Math.min(stepW * 2, currentOffsetPx + deltaX));
+        const maxOffset = stepW * 2;
+        let nextPx = Math.max(0, Math.min(maxOffset, currentOffsetPx + deltaX));
         indicator.style.transform = `translateX(${nextPx}px)`;
       });
       function finishDrag(e) {
@@ -944,7 +944,8 @@
           return;
         }
         const stepW = getStepWidth();
-        const finalPx = Math.max(0, Math.min(stepW * 2, currentOffsetPx + (e.clientX - startX)));
+        const maxOffset = stepW * 2;
+        const finalPx = Math.max(0, Math.min(maxOffset, currentOffsetPx + (e.clientX - startX)));
         const targetIdx = Math.max(0, Math.min(2, Math.floor((finalPx + stepW / 2) / stepW)));
         switchTab(tabNames[targetIdx], targetIdx);
       }
@@ -1302,6 +1303,7 @@
     renderSavedQr();
     checkAuthGate();
     window.addEventListener("load", initGooglePopup);
+    setTimeout(initGooglePopup, 800);
     if (data.sheetUrl) pullFromSheet();
 
     setTimeout(() => {
