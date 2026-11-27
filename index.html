@@ -1,60 +1,65 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <title>门店管理 Liquid Glass</title>
+  <title>Vivo Store Manager</title>
   <style>
     :root, [data-theme="dark"] {
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --btn-opacity: 1;
+      --font-scale: 1;
       --blue: #2563eb;
       --blue-bright: #3b82f6;
       --blue-accent: #93c5fd;
       --bg-page: #000000;
       --text: #f8fafc;
       --muted: #cbd5e1;
-      --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
-      --glass-border: rgba(255, 255, 255, 0.32);
+      --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.06) 100%);
+      --glass-border: rgba(255, 255, 255, 0.34);
       --glass-shadow:
         0 14px 34px rgba(0, 0, 0, 0.65),
         inset 0 1.5px 1px rgba(255, 255, 255, 0.5),
         inset 0 -1px 1px rgba(59, 130, 246, 0.25);
-      --surface-soft: rgba(255, 255, 255, 0.08);
-      --surface-border: rgba(255, 255, 255, 0.22);
-      --input-bg: rgba(255, 255, 255, 0.1);
-      --placeholder: rgba(203, 213, 225, 0.6);
-      --tab-text: rgba(255, 255, 255, 0.68);
+      --surface-soft: rgba(255, 255, 255, 0.09);
+      --surface-border: rgba(255, 255, 255, 0.24);
+      --input-bg: rgba(255, 255, 255, 0.12);
+      --placeholder: rgba(203, 213, 225, 0.65);
+      --tab-text: rgba(255, 255, 255, 0.72);
       --tab-active-text: #ffffff;
-      --tab-active-shadow: 0 0 10px rgba(147, 197, 253, 0.85);
-      --indicator-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.28) 0%, rgba(147, 197, 253, 0.18) 50%, rgba(255, 255, 255, 0.24) 100%);
-      --indicator-border: rgba(255, 255, 255, 0.78);
+      --tab-active-shadow: 0 0 12px rgba(147, 197, 253, 0.9);
+      --indicator-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.32) 0%, rgba(147, 197, 253, 0.22) 50%, rgba(255, 255, 255, 0.26) 100%);
+      --indicator-border: rgba(255, 255, 255, 0.85);
     }
 
-    /* ==================== 浅色模式变量（纯白底 + 冰蓝液态玻璃） ==================== */
     [data-theme="light"] {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --btn-opacity: var(--btn-opacity, 1);
+      --font-scale: var(--font-scale, 1);
       --blue: #2563eb;
       --blue-bright: #1d4ed8;
       --blue-accent: #1d4ed8;
-      --bg-page: #ffffff;
+      --bg-page: #f8fafc;
       --text: #0f172a;
       --muted: #475569;
-      --glass-bg: linear-gradient(145deg, rgba(37, 99, 235, 0.07) 0%, rgba(255, 255, 255, 0.78) 100%);
-      --glass-border: rgba(37, 99, 235, 0.22);
+      --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.86) 0%, rgba(239, 246, 255, 0.78) 100%);
+      --glass-border: rgba(37, 99, 235, 0.24);
       --glass-shadow:
-        0 10px 28px rgba(15, 23, 42, 0.07),
-        inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+        0 10px 28px rgba(15, 23, 42, 0.08),
+        inset 0 1.5px 1px rgba(255, 255, 255, 0.96),
         inset 0 -1px 1px rgba(37, 99, 235, 0.12);
       --surface-soft: rgba(37, 99, 235, 0.06);
-      --surface-border: rgba(37, 99, 235, 0.18);
-      --input-bg: rgba(255, 255, 255, 0.85);
+      --surface-border: rgba(37, 99, 235, 0.2);
+      --input-bg: rgba(255, 255, 255, 0.9);
       --placeholder: rgba(100, 116, 139, 0.75);
-      --tab-text: rgba(15, 23, 42, 0.62);
+      --tab-text: rgba(15, 23, 42, 0.65);
       --tab-active-text: #1d4ed8;
       --tab-active-shadow: 0 0 8px rgba(37, 99, 235, 0.25);
-      --indicator-bg: linear-gradient(145deg, rgba(37, 99, 235, 0.18) 0%, rgba(147, 197, 253, 0.26) 50%, rgba(255, 255, 255, 0.75) 100%);
-      --indicator-border: rgba(37, 99, 235, 0.55);
+      --indicator-bg: linear-gradient(145deg, rgba(37, 99, 235, 0.2) 0%, rgba(147, 197, 253, 0.28) 50%, rgba(255, 255, 255, 0.85) 100%);
+      --indicator-border: rgba(37, 99, 235, 0.6);
     }
 
     * {
@@ -62,16 +67,63 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    html {
+      font-size: calc(16px * var(--font-scale));
+    }
+
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
       color: var(--text);
       min-height: 100vh;
-      padding-bottom: calc(var(--safe-bottom) + 125px);
+      padding-bottom: calc(var(--safe-bottom) + 140px);
       padding-left: env(safe-area-inset-left, 0px);
       padding-right: env(safe-area-inset-right, 0px);
       background-color: var(--bg-page);
       transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* 开场页面 Splash Screen */
+    #splashScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: radial-gradient(circle at 50% 35%, rgba(59, 130, 246, 0.28), #020617 72%);
+      color: #ffffff;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+    #splashScreen.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .splash-logo {
+      width: 84px;
+      height: 84px;
+      border-radius: 26px;
+      background: linear-gradient(145deg, rgba(59, 130, 246, 0.55), rgba(29, 78, 216, 0.35));
+      border: 1.5px solid rgba(255, 255, 255, 0.65);
+      box-shadow: 0 18px 40px rgba(37, 99, 235, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+    .splash-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .splash-sub {
+      font-size: 12px;
+      color: rgba(226, 232, 240, 0.8);
     }
 
     .glass {
@@ -86,40 +138,25 @@
       position: sticky;
       top: 0;
       z-index: 20;
-      padding: calc(var(--safe-top) + 12px) 14px 12px;
+      padding: calc(var(--safe-top) + 12px) 16px 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       border-bottom: 1px solid var(--glass-border);
-      border-radius: 0 0 22px 22px;
+      border-radius: 0 0 24px 24px;
     }
     header h1 {
-      font-size: 16px;
+      font-size: 1.05rem;
       margin: 0;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: 0.2px;
       color: var(--text);
       white-space: nowrap;
     }
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .manager-pill {
-      font-size: 11px;
-      padding: 4px 9px;
-      border-radius: 999px;
-      background: rgba(37, 99, 235, 0.22);
-      border: 1px solid var(--glass-border);
-      color: var(--text);
-      font-weight: 700;
-      white-space: nowrap;
-    }
     .theme-btn {
-      font-size: 11px;
-      padding: 4px 9px;
+      font-size: 0.78rem;
+      padding: 6px 12px;
       border-radius: 999px;
       background: var(--surface-soft);
       border: 1px solid var(--glass-border);
@@ -127,6 +164,7 @@
       font-weight: 700;
       cursor: pointer;
       white-space: nowrap;
+      opacity: var(--btn-opacity);
     }
 
     .container { padding: 14px; max-width: 640px; margin: 0 auto; }
@@ -137,9 +175,9 @@
       overflow: hidden;
     }
     .card-title {
-      font-size: 14px;
+      font-size: 0.92rem;
       font-weight: 700;
-      margin: 0 0 11px;
+      margin: 0 0 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -147,7 +185,6 @@
       color: var(--text);
     }
 
-    /* 账号切换胶囊栏 */
     .account-bar {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -160,17 +197,15 @@
       border-radius: 14px;
       border: 1px solid var(--surface-border);
       background: var(--surface-soft);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       color: var(--muted);
-      font-size: 12px;
+      font-size: 0.78rem;
       font-weight: 600;
       text-align: center;
       cursor: pointer;
-      transition: all 0.22s ease;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      opacity: var(--btn-opacity);
     }
     .acc-btn.active {
       background: linear-gradient(145deg, #3b82f6, #1d4ed8);
@@ -179,7 +214,6 @@
       box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
     }
 
-    /* 日历样式 */
     .cal-header {
       display: flex;
       justify-content: space-between;
@@ -190,10 +224,11 @@
       background: var(--surface-soft);
       border: 1px solid var(--surface-border);
       border-radius: 11px;
-      padding: 5px 12px;
+      padding: 6px 13px;
       font-weight: 700;
       cursor: pointer;
       color: var(--text);
+      opacity: var(--btn-opacity);
     }
     .cal-weekdays, .cal-grid {
       display: grid;
@@ -202,14 +237,14 @@
       text-align: center;
     }
     .cal-weekdays div {
-      font-size: 11px;
+      font-size: 0.72rem;
       font-weight: 700;
       color: var(--blue-accent);
       padding-bottom: 4px;
     }
     .cal-day {
       min-width: 0;
-      height: 46px;
+      height: 48px;
       border-radius: 12px;
       background: var(--surface-soft);
       border: 1px solid var(--surface-border);
@@ -217,24 +252,20 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 13px;
+      font-size: 0.85rem;
       font-weight: 600;
       color: var(--text);
       cursor: pointer;
       padding: 2px;
-      transition: all 0.18s ease;
     }
     .cal-day.empty { background: transparent; border: none; cursor: default; }
     .cal-day.selected {
       background: rgba(37, 99, 235, 0.24);
       border: 1.5px solid var(--blue-bright);
-      box-shadow: 0 0 12px rgba(59, 130, 246, 0.35);
     }
-    .cal-day.today {
-      border-color: var(--blue-accent);
-    }
+    .cal-day.today { border-color: var(--blue-accent); }
     .shift-dot {
-      font-size: 9px;
+      font-size: 0.62rem;
       line-height: 1.1;
       padding: 2px 4px;
       border-radius: 6px;
@@ -246,7 +277,6 @@
       font-weight: 700;
     }
 
-    /* 黑白蓝统一色系班次标签 */
     .bg-morning { background: #2563eb; color: #ffffff; }
     .bg-evening { background: #1e3a8a; color: #dbeafe; border: 1px solid rgba(147, 197, 253, 0.5); }
     .bg-offday { background: #64748b; color: #ffffff; }
@@ -265,10 +295,10 @@
       flex-direction: column;
       gap: 4px;
     }
-    .name-box label { font-size: 11px; color: var(--blue-accent); font-weight: 600; }
+    .name-box label { font-size: 0.72rem; color: var(--blue-accent); font-weight: 600; }
 
     input, select, button {
-      font-size: 13px;
+      font-size: 0.84rem;
       padding: 9px 11px;
       border-radius: 12px;
       border: 1px solid var(--surface-border);
@@ -277,13 +307,13 @@
       outline: none;
       max-width: 100%;
     }
+    button { opacity: var(--btn-opacity); }
     input::placeholder { color: var(--placeholder); }
     button.primary {
       background: linear-gradient(145deg, #3b82f6, #1d4ed8);
       color: #ffffff;
       font-weight: 700;
       border: 1px solid rgba(255, 255, 255, 0.5);
-      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
       cursor: pointer;
     }
 
@@ -299,7 +329,7 @@
       border: 1px solid var(--surface-border);
       background: var(--surface-soft);
       color: var(--text);
-      font-size: 12px;
+      font-size: 0.78rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -309,10 +339,6 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-    .shift-choice:active {
-      background: rgba(59, 130, 246, 0.32);
-      border-color: var(--blue-bright);
     }
     .shift-choice .swatch {
       width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
@@ -328,15 +354,14 @@
       border: 1px solid var(--surface-border);
       border-radius: 14px;
       padding: 10px;
-      font-size: 12px;
+      font-size: 0.78rem;
       color: var(--muted);
     }
-    .stat-item strong { display: block; font-size: 13px; margin-bottom: 4px; color: var(--text); }
+    .stat-item strong { display: block; font-size: 0.85rem; margin-bottom: 4px; color: var(--text); }
 
-    .row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-    .row input { flex: 1; min-width: 100px; }
+    .row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+    .row input { flex: 1; min-width: 120px; }
 
-    /* ==================== Stock 独立放大展示样式 ==================== */
     .stock-card-item {
       padding: 14px;
       margin-bottom: 10px;
@@ -353,14 +378,14 @@
       margin-bottom: 10px;
     }
     .stock-model-name {
-      font-size: 15px;
+      font-size: 0.96rem;
       font-weight: 700;
       color: var(--text);
       display: block;
       margin-bottom: 3px;
     }
     .stock-sub-meta {
-      font-size: 11px;
+      font-size: 0.74rem;
       color: var(--muted);
       display: block;
     }
@@ -380,14 +405,13 @@
     }
     .stock-big-label {
       display: block;
-      font-size: 10px;
+      font-size: 0.65rem;
       font-weight: 700;
       color: var(--blue-accent);
-      letter-spacing: 0.4px;
     }
     .stock-big-num {
       display: block;
-      font-size: 22px;
+      font-size: 1.35rem;
       font-weight: 800;
       line-height: 1.15;
       color: var(--text);
@@ -402,13 +426,13 @@
     }
     .sales-side-label {
       display: block;
-      font-size: 10px;
+      font-size: 0.65rem;
       font-weight: 600;
       color: var(--muted);
     }
     .sales-side-num {
       display: block;
-      font-size: 16px;
+      font-size: 1rem;
       font-weight: 800;
       line-height: 1.25;
       color: var(--blue-accent);
@@ -418,102 +442,78 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
     }
-    .btn-return {
-      background: rgba(147, 197, 253, 0.16);
-      border: 1px solid rgba(147, 197, 253, 0.45);
-      color: var(--text);
+    .btn-return, .btn-in, .btn-sell {
       font-weight: 700;
       padding: 8px 6px;
       border-radius: 12px;
-      font-size: 13px;
+      font-size: 0.84rem;
       cursor: pointer;
-    }
-    .btn-in {
-      background: rgba(59, 130, 246, 0.32);
-      border: 1px solid rgba(59, 130, 246, 0.65);
       color: var(--text);
-      font-weight: 700;
-      padding: 8px 6px;
-      border-radius: 12px;
-      font-size: 13px;
-      cursor: pointer;
     }
-    .btn-sell {
-      background: var(--input-bg);
-      border: 1px solid var(--surface-border);
-      color: var(--text);
-      font-weight: 700;
-      padding: 8px 6px;
-      border-radius: 12px;
-      font-size: 13px;
-      cursor: pointer;
-    }
+    .btn-return { background: rgba(147, 197, 253, 0.16); border: 1px solid rgba(147, 197, 253, 0.45); }
+    .btn-in { background: rgba(59, 130, 246, 0.32); border: 1px solid rgba(59, 130, 246, 0.65); }
+    .btn-sell { background: var(--input-bg); border: 1px solid var(--surface-border); }
 
-    .cctv-card-btn {
-      width: 100%;
-      padding: 16px;
-      border-radius: 16px;
-      background: rgba(37, 99, 235, 0.22);
-      border: 1px solid var(--glass-border);
-      color: var(--text);
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      cursor: pointer;
+    .setting-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--surface-border);
     }
+    .setting-item:last-child { border-bottom: none; }
+    .setting-label { font-size: 0.86rem; font-weight: 700; }
+    .setting-desc { font-size: 0.74rem; color: var(--muted); margin-top: 2px; }
+    .qr-box {
+      margin-top: 12px;
+      padding: 16px;
+      border-radius: 18px;
+      background: #ffffff;
+      color: #0f172a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .qr-box img { width: 176px; height: 176px; display: block; }
 
-    /* 透明液态玻璃底部悬浮胶囊栏（已适配底部安全区） */
+    /* iOS 风格放大底部胶囊栏 */
     .tab-bar-wrap {
       position: fixed;
-      bottom: calc(var(--safe-bottom) + 16px);
+      bottom: calc(var(--safe-bottom) + 18px);
       left: 50%;
       transform: translateX(-50%);
-      width: calc(100% - 28px);
-      max-width: 420px;
+      width: calc(100% - 24px);
+      max-width: 460px;
       z-index: 40;
     }
     .tab-bar {
       position: relative;
       display: flex;
-      padding: 6px;
+      padding: 7px;
       border-radius: 999px;
-      background-color: transparent;
-      backdrop-filter: blur(22px) saturate(180%);
-      -webkit-backdrop-filter: blur(22px) saturate(180%);
-      border: 1px solid var(--glass-border);
+      background: var(--glass-bg);
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      border: 1.2px solid var(--glass-border);
       box-shadow: var(--glass-shadow);
       touch-action: none;
       user-select: none;
     }
     .tab-indicator {
       position: absolute;
-      top: 6px;
-      bottom: 6px;
-      left: 6px;
-      width: calc((100% - 12px) / 3);
+      top: 7px;
+      bottom: 7px;
+      left: 7px;
+      width: calc((100% - 14px) / 3);
       border-radius: 999px;
       background: var(--indicator-bg);
-      backdrop-filter: blur(18px) saturate(200%) brightness(1.12);
-      -webkit-backdrop-filter: blur(18px) saturate(200%) brightness(1.12);
       border: 1.2px solid var(--indicator-border);
-      box-shadow:
-        0 8px 24px rgba(37, 99, 235, 0.3),
-        inset 0 1.5px 1.5px rgba(255, 255, 255, 0.8);
-      transform-origin: center center;
-      transition: transform 0.52s cubic-bezier(0.34, 1.56, 0.64, 1);
-      cursor: grab;
+      transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
       z-index: 1;
     }
-    .tab-indicator.dragging {
-      transition: none;
-      cursor: grabbing;
-      box-shadow:
-        0 14px 32px rgba(59, 130, 246, 0.45),
-        inset 0 1.5px 1.5px rgba(255, 255, 255, 0.95);
-    }
+    .tab-indicator.dragging { transition: none; }
     .tab-btn {
       position: relative;
       z-index: 2;
@@ -521,30 +521,33 @@
       background: transparent !important;
       border: none !important;
       color: var(--tab-text);
-      padding: 7px 4px;
-      font-size: 11px;
-      font-weight: 700;
+      padding: 10px 6px;
+      font-size: 0.82rem;
+      font-weight: 800;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2px;
+      gap: 3px;
       cursor: pointer;
+      opacity: 1 !important;
     }
-    .tab-btn .icon { font-size: 18px; }
+    .tab-btn .icon { font-size: 1.25rem; line-height: 1.1; }
     .tab-btn.active { color: var(--tab-active-text); text-shadow: var(--tab-active-shadow); }
     .hidden { display: none !important; }
-    .hint { font-size: 12px; color: var(--muted); line-height: 1.45; margin: 8px 0 0; }
+    .hint { font-size: 0.76rem; color: var(--muted); line-height: 1.45; margin: 8px 0 0; }
   </style>
 </head>
 <body>
 
+  <div id="splashScreen">
+    <div class="splash-logo">V</div>
+    <div class="splash-title" id="splashTitle">Vivo Store Manager</div>
+    <div class="splash-sub" id="splashSub">Loading workspace...</div>
+  </div>
+
   <header class="glass">
-    <h1>🏪 门店管理</h1>
-    <div class="header-actions">
-      <button class="theme-btn" onclick="updateNow()">🔄 更新</button>
-      <button class="theme-btn" id="themeToggleBtn" onclick="cycleTheme()">🖥️ 自动</button>
-      <span class="manager-pill" id="headerBadge">👑 店长视角</span>
-    </div>
+    <h1 id="appHeaderTitle">🏪 Vivo Store</h1>
+    <button class="theme-btn" id="themeToggleBtn" onclick="cycleTheme()">🖥️ Auto</button>
   </header>
 
   <div class="container" id="tab-schedule">
@@ -553,100 +556,152 @@
     <div class="card glass">
       <div class="cal-header">
         <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
-        <strong id="calMonthTitle" style="font-size:15px;">2026年 11月</strong>
+        <strong id="calMonthTitle" style="font-size:0.95rem;">2026-11</strong>
         <button class="cal-nav" onclick="changeMonth(1)">›</button>
       </div>
       <div class="cal-weekdays">
-        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
       </div>
       <div class="cal-grid" id="calGrid"></div>
-      <p class="hint" id="selectedDateInfo">当前选中日期：-</p>
+      <p class="hint" id="selectedDateInfo">-</p>
     </div>
 
     <div class="card glass">
       <div class="card-title">
-        <span> 人员名字设置（店长 + 3名员工）</span>
-        <button class="primary" style="padding:5px 10px;font-size:12px;" onclick="saveNames()">保存名字</button>
+        <span id="staffCardTitle">Staff Names</span>
+        <button class="primary" style="padding:6px 12px;font-size:0.76rem;" onclick="saveNames()" id="saveNamesBtn">Save</button>
       </div>
       <div class="name-grid">
         <div class="name-box">
-          <label>我的名字（店长）</label>
-          <input type="text" id="name_0" placeholder="输入你的名字" />
+          <label id="lblName0">Manager</label>
+          <input type="text" id="name_0" />
         </div>
         <div class="name-box">
-          <label>员工 1</label>
-          <input type="text" id="name_1" placeholder="输入员工1名字" />
+          <label id="lblName1">Staff 1</label>
+          <input type="text" id="name_1" />
         </div>
         <div class="name-box">
-          <label>员工 2</label>
-          <input type="text" id="name_2" placeholder="输入员工2名字" />
+          <label id="lblName2">Staff 2</label>
+          <input type="text" id="name_2" />
         </div>
         <div class="name-box">
-          <label>员工 3</label>
-          <input type="text" id="name_3" placeholder="输入员工3名字" />
+          <label id="lblName3">Staff 3</label>
+          <input type="text" id="name_3" />
         </div>
       </div>
     </div>
 
     <div class="card glass">
       <div class="card-title">
-        <span> 选择班次</span>
-        <button style="padding:4px 8px;font-size:11px;" onclick="setShift('')">清除当天</button>
+        <span id="shiftCardTitle">Shift</span>
+        <button style="padding:5px 10px;font-size:0.74rem;" onclick="setShift('')" id="clearShiftBtn">Clear</button>
       </div>
       <div class="shift-options">
-        <button class="shift-choice" onclick="setShift('早班')"><span class="swatch bg-morning"></span>早班</button>
-        <button class="shift-choice" onclick="setShift('晚班')"><span class="swatch bg-evening"></span>晚班</button>
-        <button class="shift-choice" onclick="setShift('offday')"><span class="swatch bg-offday"></span>Offday</button>
-        <button class="shift-choice" onclick="setShift('unpaid leave')"><span class="swatch bg-unpaid"></span>Unpaid Leave</button>
-        <button class="shift-choice" onclick="setShift('annual leave')"><span class="swatch bg-annual"></span>Annual Leave</button>
-        <button class="shift-choice" onclick="setShift('training')"><span class="swatch bg-training"></span>Training</button>
+        <button class="shift-choice" onclick="setShift('早班')"><span class="swatch bg-morning"></span><span data-s="早班">Morning</span></button>
+        <button class="shift-choice" onclick="setShift('晚班')"><span class="swatch bg-evening"></span><span data-s="晚班">Evening</span></button>
+        <button class="shift-choice" onclick="setShift('offday')"><span class="swatch bg-offday"></span><span data-s="offday">Offday</span></button>
+        <button class="shift-choice" onclick="setShift('unpaid leave')"><span class="swatch bg-unpaid"></span><span data-s="unpaid leave">Unpaid</span></button>
+        <button class="shift-choice" onclick="setShift('annual leave')"><span class="swatch bg-annual"></span><span data-s="annual leave">Annual</span></button>
+        <button class="shift-choice" onclick="setShift('training')"><span class="swatch bg-training"></span><span data-s="training">Training</span></button>
       </div>
     </div>
 
     <div class="card glass" id="managerDashboard">
-      <div class="card-title">
-        <span> 店长总览（全店排班与工时统计）</span>
-      </div>
-      <div id="todayAllStaff" style="font-size:12px;margin-bottom:10px;padding:10px;border-radius:14px;background:var(--surface-soft);border:1px solid var(--surface-border);"></div>
+      <div class="card-title"><span id="summaryCardTitle">Monthly Summary</span></div>
+      <div id="todayAllStaff" style="font-size:0.78rem;margin-bottom:10px;padding:10px;border-radius:14px;background:var(--surface-soft);border:1px solid var(--surface-border);"></div>
       <div class="stats-grid" id="monthlyStatsGrid"></div>
     </div>
   </div>
 
   <div class="container hidden" id="tab-stock">
     <div class="card glass">
-      <div class="card-title"><span>🔗 Google Sheets 同步接口</span></div>
+      <div class="card-title"><span id="sheetCardTitle">Google Sheets Sync</span></div>
       <div class="row">
-        <input type="url" id="sheetUrlInput" placeholder="粘贴你的 Google Apps Script 链接" />
-        <button class="primary" onclick="saveSheetUrl()">保存</button>
+        <input type="url" id="sheetUrlInput" placeholder="Google Apps Script URL" />
+        <button class="primary" onclick="saveSheetUrl()" id="saveSheetBtn">Save</button>
       </div>
       <div class="row" style="margin-bottom:0;">
-        <button style="flex:1;font-weight:700;" onclick="pullFromSheet()">⬇️ 从 Sheet 拉取货单</button>
-        <select id="stockCatFilter" onchange="renderStocks()" style="max-width:125px;">
-          <option value="ALL">全部货品</option>
+        <button style="flex:1;font-weight:700;" onclick="pullFromSheet()" id="pullSheetBtn">⬇️ Pull Stock</button>
+        <select id="stockCatFilter" onchange="renderStocks()" style="max-width:130px;">
+          <option value="ALL">ALL</option>
           <option value="Phone">Phone</option>
           <option value="Accessory">Accessory</option>
         </select>
       </div>
-      <p class="hint" id="stockSyncMsg">状态：等待连接 Google Sheet...</p>
+      <p class="hint" id="stockSyncMsg">-</p>
     </div>
 
     <div class="card glass">
-      <div class="card-title"><span>📦 店内 Stock 清单（退货 / 加1 / 减1）</span></div>
-      <input type="text" id="stockSearchInput" oninput="renderStocks()" placeholder="搜索型号 / 颜色..." style="width:100%;margin-bottom:12px;" />
+      <div class="card-title"><span id="stockListTitle">Stock List</span></div>
+      <input type="text" id="stockSearchInput" oninput="renderStocks()" placeholder="Search model / color..." style="width:100%;margin-bottom:12px;" />
       <div id="stockList"></div>
     </div>
   </div>
 
-  <div class="container hidden" id="tab-cctv">
+  <div class="container hidden" id="tab-settings">
     <div class="card glass">
-      <div class="card-title"><span>📹 TP-Link 监控快捷入口</span></div>
-      <button class="cctv-card-btn" onclick="openCctv('tapo://')">
-        <span>TP-Link Tapo</span><span>打开 ›</span>
-      </button>
-      <button class="cctv-card-btn" onclick="openCctv('vigi://')">
-        <span>TP-Link VIGI</span><span>打开 ›</span>
-      </button>
-      <p class="hint">下一步等你的界面跑通后，我教你如何配置与你手机上 TP-Link App 的直连方式。</p>
+      <div class="card-title"><span id="accSettingTitle">Account & Google Sign-In</span></div>
+      <div class="row">
+        <input type="text" id="accDisplayName" placeholder="Display Name" />
+        <input type="email" id="accGoogleEmail" placeholder="Google Email (e.g. name@gmail.com)" />
+      </div>
+      <div class="row" style="margin-bottom:0;">
+        <button class="primary" onclick="saveAccountProfile()" id="saveAccBtn">Save Account</button>
+        <button onclick="quickGoogleBind()" id="googleBindBtn">G Quick Fill Google</button>
+      </div>
+      <p class="hint" id="accStatusText">-</p>
+    </div>
+
+    <div class="card glass">
+      <div class="card-title"><span id="a11yTitle">Accessibility</span></div>
+      <div class="setting-item">
+        <div>
+          <div class="setting-label" id="btnOpacityLabel">Button Opacity</div>
+          <div class="setting-desc" id="btnOpacityVal">100%</div>
+        </div>
+        <input type="range" min="40" max="100" step="5" id="btnOpacityRange" oninput="updateAccessibility()" style="width:140px;" />
+      </div>
+      <div class="setting-item">
+        <div>
+          <div class="setting-label" id="fontScaleLabel">Font Size</div>
+          <div class="setting-desc" id="fontScaleVal">100%</div>
+        </div>
+        <input type="range" min="85" max="130" step="5" id="fontScaleRange" oninput="updateAccessibility()" style="width:140px;" />
+      </div>
+    </div>
+
+    <div class="card glass">
+      <div class="card-title"><span id="langAndUpdateTitle">Language & Update</span></div>
+      <div class="setting-item">
+        <div>
+          <div class="setting-label" id="langLabel">Language</div>
+          <div class="setting-desc">English / Bahasa Melayu</div>
+        </div>
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+          <option value="en">English</option>
+          <option value="ms">Bahasa Melayu</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <div>
+          <div class="setting-label" id="checkUpdateLabel">Check for Updates</div>
+          <div class="setting-desc" id="checkUpdateDesc">Reload latest web version without reinstalling APK</div>
+        </div>
+        <button class="primary" onclick="updateNow()" id="checkUpdateBtn">Check Update</button>
+      </div>
+    </div>
+
+    <div class="card glass">
+      <div class="card-title"><span id="qrCardTitle">App Download QR Code</span></div>
+      <div class="row">
+        <input type="url" id="apkDownloadUrlInput" placeholder="Paste direct APK download link" />
+        <button class="primary" onclick="generateDownloadQr()" id="genQrBtn">Generate QR</button>
+      </div>
+      <p class="hint" id="qrHintText">Upload your APK to GitHub Releases or cloud storage and paste the direct link here.</p>
+      <div class="qr-box hidden" id="qrResultBox">
+        <img id="qrImg" alt="Download QR" />
+        <span id="qrLinkCaption" style="font-size:0.72rem;word-break:break-all;text-align:center;"></span>
+      </div>
     </div>
   </div>
 
@@ -654,31 +709,129 @@
     <nav class="tab-bar" id="glassTabBar">
       <div class="tab-indicator" id="tabIndicator"></div>
       <button class="tab-btn active" data-tab="schedule" data-index="0" onclick="switchTab('schedule', 0, this)">
-        <span class="icon"></span><span>时间表</span>
+        <span class="icon">📅</span><span id="navSchedule">Schedule</span>
       </button>
       <button class="tab-btn" data-tab="stock" data-index="1" onclick="switchTab('stock', 1, this)">
-        <span class="icon"></span><span>Stock</span>
+        <span class="icon">📦</span><span id="navStock">Stock</span>
       </button>
-      <button class="tab-btn" data-tab="cctv" data-index="2" onclick="switchTab('cctv', 2, this)">
-        <span class="icon"></span><span>CCTV</span>
+      <button class="tab-btn" data-tab="settings" data-index="2" onclick="switchTab('settings', 2, this)">
+        <span class="icon">⚙️</span><span id="navSettings">Settings</span>
       </button>
     </nav>
   </div>
 
   <script>
-    function updateNow() {
-      const baseUrl = window.location.href.split("?")[0];
-      window.location.replace(baseUrl + "?v=" + Date.now());
-    }
+    const I18N = {
+      en: {
+        headerTitle: "🏪 Vivo Store",
+        splashSub: "Starting store workspace...",
+        navSchedule: "Schedule",
+        navStock: "Stock",
+        navSettings: "Settings",
+        staffCardTitle: "Staff Names",
+        saveNamesBtn: "Save",
+        lblName0: "Manager",
+        lblName1: "Staff 1",
+        lblName2: "Staff 2",
+        lblName3: "Staff 3",
+        shiftCardTitle: "Shift",
+        clearShiftBtn: "Clear",
+        summaryCardTitle: "Monthly Summary",
+        sheetCardTitle: "Google Sheets Sync",
+        saveSheetBtn: "Save",
+        pullSheetBtn: "⬇️ Pull Stock",
+        stockListTitle: "Stock List",
+        accSettingTitle: "Account & Google Sign-In",
+        saveAccBtn: "Save Account",
+        googleBindBtn: "G Quick Fill Google",
+        a11yTitle: "Accessibility",
+        btnOpacityLabel: "Button Opacity",
+        fontScaleLabel: "Font Size",
+        langAndUpdateTitle: "Language & Update",
+        langLabel: "Language",
+        checkUpdateLabel: "Check for Updates",
+        checkUpdateDesc: "Reload latest web version without reinstalling APK",
+        checkUpdateBtn: "Check Update",
+        qrCardTitle: "App Download QR Code",
+        genQrBtn: "Generate QR",
+        qrHintText: "Upload your APK to GitHub Releases or cloud storage and paste the direct link here.",
+        shifts: {
+          "早班": "Morning",
+          "晚班": "Evening",
+          "offday": "Offday",
+          "unpaid leave": "Unpaid",
+          "annual leave": "Annual",
+          "training": "Training"
+        }
+      },
+      ms: {
+        headerTitle: "🏪 Kedai Vivo",
+        splashSub: "Memuatkan sistem kedai...",
+        navSchedule: "Jadual",
+        navStock: "Stok",
+        navSettings: "Tetapan",
+        staffCardTitle: "Nama Staf",
+        saveNamesBtn: "Simpan",
+        lblName0: "Pengurus",
+        lblName1: "Staf 1",
+        lblName2: "Staf 2",
+        lblName3: "Staf 3",
+        shiftCardTitle: "Giliran Kerja",
+        clearShiftBtn: "Padam",
+        summaryCardTitle: "Ringkasan Bulanan",
+        sheetCardTitle: "Segerak Google Sheets",
+        saveSheetBtn: "Simpan",
+        pullSheetBtn: "⬇️ Tarik Stok",
+        stockListTitle: "Senarai Stok",
+        accSettingTitle: "Akaun & Log Masuk Google",
+        saveAccBtn: "Simpan Akaun",
+        googleBindBtn: "G Isi Pantas Google",
+        a11yTitle: "Kebolehcapaian",
+        btnOpacityLabel: "Kelegapan Butang",
+        fontScaleLabel: "Saiz Fon",
+        langAndUpdateTitle: "Bahasa & Kemas Kini",
+        langLabel: "Bahasa",
+        checkUpdateLabel: "Semak Kemas Kini",
+        checkUpdateDesc: "Muat semula versi web terkini tanpa pasang semula APK",
+        checkUpdateBtn: "Semak Kini",
+        qrCardTitle: "Kod QR Muat Turun App",
+        genQrBtn: "Jana QR",
+        qrHintText: "Muat naik APK ke GitHub Releases atau storan awan dan tampal pautan terus di sini.",
+        shifts: {
+          "早班": "Pagi",
+          "晚班": "Malam",
+          "offday": "Offday",
+          "unpaid leave": "Cuti Tanpa Gaji",
+          "annual leave": "Cuti Tahunan",
+          "training": "Latihan"
+        }
+      }
+    };
 
-    const KEY = "store_liquid_v4";
+    const KEY = "store_liquid_v5";
     const THEME_KEY = "store_liquid_theme";
     const todayStr = new Date().toISOString().slice(0, 10);
 
     const themeModes = ["auto", "light", "dark"];
-    const themeLabels = { auto: "🖥️ 自动", light: "☀️ 浅色", dark: "🌙 深色" };
+    const themeLabels = { auto: "🖥️ Auto", light: "☀️ Light", dark: "🌙 Dark" };
     let currentThemeMode = localStorage.getItem(THEME_KEY) || "auto";
     const systemDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    let data = JSON.parse(localStorage.getItem(KEY)) || {
+      lang: "en",
+      users: ["Manager", "Staff 1", "Staff 2", "Staff 3"],
+      activeUser: 0,
+      shifts: {},
+      sheetUrl: "https://script.google.com/macros/s/AKfycbwKrZdVpaIM-aPyLsD08hzVbzxxteBIEecvCi/exec",
+      stocks: [],
+      profile: { name: "Manager", email: "" },
+      accessibility: { btnOpacity: 100, fontScale: 100 },
+      apkUrl: ""
+    };
+
+    function saveData() {
+      localStorage.setItem(KEY, JSON.stringify(data));
+    }
 
     function applyTheme() {
       const effective = currentThemeMode === "auto"
@@ -699,26 +852,68 @@
     systemDarkQuery.addEventListener("change", () => {
       if (currentThemeMode === "auto") applyTheme();
     });
-    applyTheme();
 
-    // ==================== 业务数据 ====================
-    let data = JSON.parse(localStorage.getItem(KEY)) || {
-      users: ["我（店长）", "员工 1", "员工 2", "员工 3"],
-      activeUser: 0,
-      shifts: {},
-      sheetUrl: "https://script.google.com/macros/s/AKfycbwKrZdVpaIM-aPyLsD08hzVbzxxteBIEecvCi/exec",
-      stocks: []
-    };
+    function applyLanguage() {
+      const t = I18N[data.lang] || I18N.en;
+      document.documentElement.lang = data.lang;
+      document.getElementById("appHeaderTitle").textContent = t.headerTitle;
+      document.getElementById("splashSub").textContent = t.splashSub;
+      document.getElementById("navSchedule").textContent = t.navSchedule;
+      document.getElementById("navStock").textContent = t.navStock;
+      document.getElementById("navSettings").textContent = t.navSettings;
+      document.getElementById("staffCardTitle").textContent = t.staffCardTitle;
+      document.getElementById("saveNamesBtn").textContent = t.saveNamesBtn;
+      document.getElementById("lblName0").textContent = t.lblName0;
+      document.getElementById("lblName1").textContent = t.lblName1;
+      document.getElementById("lblName2").textContent = t.lblName2;
+      document.getElementById("lblName3").textContent = t.lblName3;
+      document.getElementById("shiftCardTitle").textContent = t.shiftCardTitle;
+      document.getElementById("clearShiftBtn").textContent = t.clearShiftBtn;
+      document.getElementById("summaryCardTitle").textContent = t.summaryCardTitle;
+      document.getElementById("sheetCardTitle").textContent = t.sheetCardTitle;
+      document.getElementById("saveSheetBtn").textContent = t.saveSheetBtn;
+      document.getElementById("pullSheetBtn").textContent = t.pullSheetBtn;
+      document.getElementById("stockListTitle").textContent = t.stockListTitle;
+      document.getElementById("accSettingTitle").textContent = t.accSettingTitle;
+      document.getElementById("saveAccBtn").textContent = t.saveAccBtn;
+      document.getElementById("googleBindBtn").textContent = t.googleBindBtn;
+      document.getElementById("a11yTitle").textContent = t.a11yTitle;
+      document.getElementById("btnOpacityLabel").textContent = t.btnOpacityLabel;
+      document.getElementById("fontScaleLabel").textContent = t.fontScaleLabel;
+      document.getElementById("langAndUpdateTitle").textContent = t.langAndUpdateTitle;
+      document.getElementById("langLabel").textContent = t.langLabel;
+      document.getElementById("checkUpdateLabel").textContent = t.checkUpdateLabel;
+      document.getElementById("checkUpdateDesc").textContent = t.checkUpdateDesc;
+      document.getElementById("checkUpdateBtn").textContent = t.checkUpdateBtn;
+      document.getElementById("qrCardTitle").textContent = t.qrCardTitle;
+      document.getElementById("genQrBtn").textContent = t.genQrBtn;
+      document.getElementById("qrHintText").textContent = t.qrHintText;
 
-    let currentYear = new Date().getFullYear();
-    let currentMonth = new Date().getMonth();
-    let selectedDate = todayStr;
+      document.querySelectorAll(".shift-choice span[data-s]").forEach(el => {
+        const key = el.getAttribute("data-s");
+        if (t.shifts[key]) el.textContent = t.shifts[key];
+      });
 
-    function saveData() {
-      localStorage.setItem(KEY, JSON.stringify(data));
+      const langSel = document.getElementById("langSelect");
+      if (langSel) langSel.value = data.lang;
+      renderAccounts();
+      renderCalendar();
+      renderAccountProfile();
     }
 
-    const tabNames = ["schedule", "stock", "cctv"];
+    function changeLanguage(lang) {
+      data.lang = lang;
+      saveData();
+      applyLanguage();
+    }
+
+    function updateNow() {
+      const baseUrl = window.location.href.split("?")[0];
+      window.location.replace(baseUrl + "?v=" + Date.now());
+    }
+
+    // ==================== 导航栏 ====================
+    const tabNames = ["schedule", "stock", "settings"];
     let currentTabIndex = 0;
 
     function switchTab(name, idx, btn) {
@@ -735,12 +930,9 @@
       indicator.classList.remove("dragging");
       indicator.style.transform = `translateX(${idx * 100}%)`;
 
-      if (name === "stock" && data.sheetUrl) {
-        pullFromSheet();
-      }
+      if (name === "stock" && data.sheetUrl) pullFromSheet();
     }
 
-    // 轻点直接切换 + 手指滑动停在哪个选项就切到哪一个（果冻放大回弹）
     (function initTabSwipe() {
       const bar = document.getElementById("glassTabBar");
       const indicator = document.getElementById("tabIndicator");
@@ -749,73 +941,47 @@
       let isDragging = false;
       let hasMoved = false;
       let startX = 0;
-      let lastX = 0;
       let currentOffsetPx = 0;
 
       function getStepWidth() {
-        return (bar.clientWidth - 12) / 3;
+        return (bar.clientWidth - 14) / 3;
       }
 
       bar.addEventListener("pointerdown", (e) => {
         isDragging = true;
         hasMoved = false;
         startX = e.clientX;
-        lastX = e.clientX;
         currentOffsetPx = currentTabIndex * getStepWidth();
       });
 
       bar.addEventListener("pointermove", (e) => {
         if (!isDragging) return;
         const deltaX = e.clientX - startX;
-
         if (!hasMoved && Math.abs(deltaX) > 6) {
           hasMoved = true;
           indicator.classList.add("dragging");
           bar.setPointerCapture(e.pointerId);
         }
         if (!hasMoved) return;
-
         const stepW = getStepWidth();
         const maxOffset = stepW * 2;
-        const velocityX = e.clientX - lastX;
-        lastX = e.clientX;
-
-        let nextPx = currentOffsetPx + deltaX;
-        if (nextPx < 0) nextPx = nextPx * 0.25;
-        if (nextPx > maxOffset) nextPx = maxOffset + (nextPx - maxOffset) * 0.25;
-
-        const stretch = Math.min(0.16, Math.abs(velocityX) * 0.009);
-        const scaleX = 1.30 + stretch;
-        const scaleY = 1.24 - stretch * 0.45;
-
-        indicator.style.transform = `translateX(${nextPx}px) scale(${scaleX.toFixed(3)}, ${scaleY.toFixed(3)})`;
+        let nextPx = Math.max(0, Math.min(maxOffset, currentOffsetPx + deltaX));
+        indicator.style.transform = `translateX(${nextPx}px)`;
       });
 
       function finishDrag(e) {
         if (!isDragging) return;
         isDragging = false;
         indicator.classList.remove("dragging");
-
         if (!hasMoved) {
           const btn = e.target.closest(".tab-btn");
-          if (btn) {
-            const idx = Number(btn.dataset.index);
-            switchTab(tabNames[idx], idx, btn);
-          }
+          if (btn) switchTab(tabNames[Number(btn.dataset.index)], Number(btn.dataset.index), btn);
           return;
         }
-
         const stepW = getStepWidth();
         const maxOffset = stepW * 2;
-        const deltaX = e.clientX - startX;
-
-        let finalPx = currentOffsetPx + deltaX;
-        finalPx = Math.max(0, Math.min(maxOffset, finalPx));
-
-        const indicatorCenterPx = finalPx + stepW / 2;
-        let targetIdx = Math.floor(indicatorCenterPx / stepW);
-        targetIdx = Math.max(0, Math.min(2, targetIdx));
-
+        const finalPx = Math.max(0, Math.min(maxOffset, currentOffsetPx + (e.clientX - startX)));
+        const targetIdx = Math.max(0, Math.min(2, Math.floor((finalPx + stepW / 2) / stepW)));
         switchTab(tabNames[targetIdx], targetIdx);
       }
 
@@ -823,22 +989,22 @@
       bar.addEventListener("pointercancel", finishDrag);
     })();
 
-    // ==================== 时间表功能 ====================
+    // ==================== 排班 ====================
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth();
+    let selectedDate = todayStr;
+
     function renderAccounts() {
       const bar = document.getElementById("accountBar");
       bar.innerHTML = data.users.map((u, idx) => `
         <button class="acc-btn ${data.activeUser === idx ? 'active' : ''}" onclick="selectUser(${idx})">
-          ${idx === 0 ? '👑 ' : ''}${u || ('员工 ' + idx)}
+          ${u || ('Staff ' + idx)}
         </button>
       `).join("");
 
       data.users.forEach((u, idx) => {
         document.getElementById("name_" + idx).value = u;
       });
-
-      const isManager = data.activeUser === 0;
-      document.getElementById("headerBadge").textContent = isManager ? "👑 店长视角" : "👤 " + data.users[data.activeUser];
-      document.getElementById("managerDashboard").classList.toggle("hidden", !isManager);
     }
 
     function selectUser(idx) {
@@ -856,7 +1022,7 @@
       saveData();
       renderAccounts();
       renderCalendar();
-      alert("名字已更新！");
+      alert("Saved");
     }
 
     function shiftClass(s) {
@@ -877,35 +1043,31 @@
     }
 
     function renderCalendar() {
-      document.getElementById("calMonthTitle").textContent = `${currentYear}年 ${currentMonth + 1}月`;
+      const t = I18N[data.lang] || I18N.en;
+      document.getElementById("calMonthTitle").textContent = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`;
       const grid = document.getElementById("calGrid");
       const firstDay = new Date(currentYear, currentMonth, 1).getDay();
       const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
       let html = "";
-      for (let i = 0; i < firstDay; i++) {
-        html += `<div class="cal-day empty"></div>`;
-      }
+      for (let i = 0; i < firstDay; i++) html += `<div class="cal-day empty"></div>`;
       for (let d = 1; d <= daysInMonth; d++) {
         const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-        const key = `${data.activeUser}_${dateStr}`;
-        const shift = data.shifts[key] || "";
-        const isSel = dateStr === selectedDate ? "selected" : "";
-        const isToday = dateStr === todayStr ? "today" : "";
+        const shift = data.shifts[`${data.activeUser}_${dateStr}`] || "";
+        const label = t.shifts[shift] || shift;
         html += `
-          <div class="cal-day ${isSel} ${isToday}" onclick="pickDate('${dateStr}')">
+          <div class="cal-day ${dateStr === selectedDate ? 'selected' : ''} ${dateStr === todayStr ? 'today' : ''}" onclick="pickDate('${dateStr}')">
             <span>${d}</span>
-            ${shift ? `<span class="shift-dot ${shiftClass(shift)}">${shift}</span>` : ""}
+            ${shift ? `<span class="shift-dot ${shiftClass(shift)}">${label}</span>` : ""}
           </div>
         `;
       }
       grid.innerHTML = html;
 
-      const curShift = data.shifts[`${data.activeUser}_${selectedDate}`] || "未排班";
-      document.getElementById("selectedDateInfo").textContent =
-        `当前账号：【${data.users[data.activeUser]}】 | 选中日期：${selectedDate}（${curShift}）`;
-
-      renderManagerStats();
+      const curRaw = data.shifts[`${data.activeUser}_${selectedDate}`] || "";
+      const curLabel = curRaw ? (t.shifts[curRaw] || curRaw) : "-";
+      document.getElementById("selectedDateInfo").textContent = `${data.users[data.activeUser]} · ${selectedDate} · ${curLabel}`;
+      renderSummary();
     }
 
     function pickDate(dateStr) {
@@ -915,26 +1077,23 @@
 
     function setShift(shiftName) {
       const key = `${data.activeUser}_${selectedDate}`;
-      if (!shiftName) {
-        delete data.shifts[key];
-      } else {
-        data.shifts[key] = shiftName;
-      }
+      if (!shiftName) delete data.shifts[key];
+      else data.shifts[key] = shiftName;
       saveData();
       renderCalendar();
     }
 
-    function renderManagerStats() {
-      if (data.activeUser !== 0) return;
-
+    function renderSummary() {
+      const t = I18N[data.lang] || I18N.en;
       const daySummary = data.users.map((u, idx) => {
-        const s = data.shifts[`${idx}_${selectedDate}`] || "未排班";
-        return `${u}：<b>${s}</b>`;
+        const raw = data.shifts[`${idx}_${selectedDate}`] || "";
+        const lbl = raw ? (t.shifts[raw] || raw) : "-";
+        return `${u}: <b>${lbl}</b>`;
       }).join(" ｜ ");
-      document.getElementById("todayAllStaff").innerHTML = `📅 <b style="color:var(--blue-accent)">${selectedDate} 全店班表：</b><br/>${daySummary}`;
+      document.getElementById("todayAllStaff").innerHTML = `${selectedDate}: ${daySummary}`;
 
       const monthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`;
-      const statsHtml = data.users.map((u, idx) => {
+      document.getElementById("monthlyStatsGrid").innerHTML = data.users.map((u, idx) => {
         let workDays = 0, offDays = 0, leaveDays = 0;
         Object.keys(data.shifts).forEach(k => {
           if (k.startsWith(`${idx}_${monthPrefix}`)) {
@@ -944,32 +1103,23 @@
             else leaveDays++;
           }
         });
-        return `
-          <div class="stat-item">
-            <strong>${idx === 0 ? "👑 " : ""}${u}</strong>
-            出勤/培训：${workDays} 天<br/>
-            Offday：${offDays} 天 ｜ 请假：${leaveDays} 天
-          </div>
-        `;
+        return `<div class="stat-item"><strong>${u}</strong>${workDays}d · Off ${offDays}d · Leave ${leaveDays}d</div>`;
       }).join("");
-      document.getElementById("monthlyStatsGrid").innerHTML = statsHtml;
     }
 
-    // ==================== Stock 功能（独立放大库存 + 对接 Apps Script） ====================
+    // ==================== Stock ====================
     const sheetInputEl = document.getElementById("sheetUrlInput");
     if (sheetInputEl) sheetInputEl.value = data.sheetUrl || "";
 
     function saveSheetUrl() {
       data.sheetUrl = document.getElementById("sheetUrlInput").value.trim();
       saveData();
-      alert("Google Sheets 链接已保存");
       if (data.sheetUrl) pullFromSheet();
     }
 
     function renderStocks() {
       const list = document.getElementById("stockList");
       if (!list) return;
-
       const cat = document.getElementById("stockCatFilter")?.value || "ALL";
       const kw = (document.getElementById("stockSearchInput")?.value || "").trim().toLowerCase();
 
@@ -982,24 +1132,19 @@
       });
 
       if (!filtered.length) {
-        list.innerHTML = `<p class="hint">暂无匹配货品，请检查 Sheet 或点击“从 Sheet 拉取货单”。</p>`;
+        list.innerHTML = `<p class="hint">No items</p>`;
         return;
       }
 
       list.innerHTML = filtered.map(item => {
         const realIdx = data.stocks.indexOf(item);
-        const subInfo = [
-          item.category || "",
-          item.color || "",
-          item.price ? `RM${item.price}` : ""
-        ].filter(Boolean).join(" · ");
-
+        const subInfo = [item.category || "", item.color || "", item.price ? `RM${item.price}` : ""].filter(Boolean).join(" · ");
         return `
           <div class="stock-card-item">
             <div class="stock-top-row">
               <div style="min-width:0;">
                 <span class="stock-model-name">${item.model}</span>
-                <span class="stock-sub-meta">${subInfo || "常规货品"}</span>
+                <span class="stock-sub-meta">${subInfo}</span>
               </div>
               <div class="stock-badges">
                 <div class="stock-big-box">
@@ -1013,9 +1158,9 @@
               </div>
             </div>
             <div class="qty-controls">
-              <button class="btn-return" onclick="handleStockAction(${realIdx}, 'return')">退货</button>
-              <button class="btn-in" onclick="handleStockAction(${realIdx}, 'add')">加1</button>
-              <button class="btn-sell" onclick="handleStockAction(${realIdx}, 'minus')">减1</button>
+              <button class="btn-return" onclick="handleStockAction(${realIdx}, 'return')">Return</button>
+              <button class="btn-in" onclick="handleStockAction(${realIdx}, 'add')">+1</button>
+              <button class="btn-sell" onclick="handleStockAction(${realIdx}, 'minus')">-1</button>
             </div>
           </div>
         `;
@@ -1025,25 +1170,22 @@
     async function handleStockAction(idx, type) {
       const item = data.stocks[idx];
       if (!item) return;
-
       let curStock = Number(item.stock) || 0;
       let curSold = Number(item.sold) || 0;
       let note = "";
 
       if (type === "add") {
-        curStock = curStock + 1;
-        note = `加1 -> Stock ${curStock}`;
+        curStock += 1;
+        note = `+1 -> ${curStock}`;
       } else if (type === "minus") {
-        if (curStock <= 0) {
-          return alert(`【${item.model}】Stock 已为 0，无法再减 1`);
-        }
-        curStock = curStock - 1;
-        curSold = curSold + 1;
-        note = `减1 -> Stock ${curStock}，Sales QTY ${curSold}`;
+        if (curStock <= 0) return alert("Stock = 0");
+        curStock -= 1;
+        curSold += 1;
+        note = `-1 -> ${curStock}`;
       } else if (type === "return") {
-        curStock = curStock + 1;
+        curStock += 1;
         curSold = Math.max(0, curSold - 1);
-        note = `退货 -> Stock ${curStock}，Sales QTY ${curSold}`;
+        note = `Return -> ${curStock}`;
       }
 
       item.stock = curStock;
@@ -1063,11 +1205,8 @@
     async function syncRowToSheet(payload) {
       const msg = document.getElementById("stockSyncMsg");
       const url = (document.getElementById("sheetUrlInput")?.value || data.sheetUrl || "").trim();
-      if (!url) {
-        msg.textContent = `本地已更新（${payload.note}），请先保存 Sheet 链接。`;
-        return;
-      }
-      msg.textContent = `正在同步【${payload.note}】到 Sheet...`;
+      if (!url) return;
+      msg.textContent = `${payload.note}...`;
       try {
         await fetch(url, {
           method: "POST",
@@ -1075,39 +1214,24 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-        msg.textContent = `✅ 已同步（${new Date().toLocaleTimeString()}）：${payload.note}`;
+        msg.textContent = `OK (${new Date().toLocaleTimeString()}): ${payload.note}`;
       } catch (e) {
-        msg.textContent = `⚠️ 同步失败，请检查网络连接或 Apps Script 权限。`;
+        msg.textContent = `Sync error`;
       }
     }
 
     async function pullFromSheet() {
       const msg = document.getElementById("stockSyncMsg");
       const url = (document.getElementById("sheetUrlInput")?.value || data.sheetUrl || "").trim();
-      if (!url) {
-        msg.textContent = "状态：请先填入 Google Apps Script 链接并保存。";
-        return;
-      }
+      if (!url) return;
       data.sheetUrl = url;
       saveData();
-
-      msg.textContent = "正在从 Sheet 读取货单...";
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 10000);
-
+      msg.textContent = "Loading...";
       try {
-        const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
-        clearTimeout(timer);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const text = await res.text();
-        const json = JSON.parse(text);
+        const res = await fetch(url, { cache: "no-store" });
+        const json = JSON.parse(await res.text());
         const list = Array.isArray(json) ? json : (Array.isArray(json.items) ? json.items : null);
-
-        if (!list) {
-          throw new Error("返回数据不是数组");
-        }
-
+        if (!list) throw new Error("Invalid data");
         data.stocks = list.map(it => ({
           row: Number(it.row),
           sheet: String(it.sheet || "Daily Sales-Phone"),
@@ -1119,28 +1243,95 @@
           stock: Number(it.stock) || 0,
           demo: Number(it.demo) || 0
         })).filter(it => it.model && it.row > 0);
-
         saveData();
         renderStocks();
-        msg.textContent = `✅ 已同步 ${data.stocks.length} 项货品（${new Date().toLocaleTimeString()}）`;
+        msg.textContent = `${data.stocks.length} items (${new Date().toLocaleTimeString()})`;
       } catch (e) {
-        clearTimeout(timer);
-        if (e.name === "AbortError") {
-          msg.textContent = "⚠️ 读取超时（10秒）：请检查网络或 Apps Script 链接。";
-        } else {
-          msg.textContent = `⚠️ 读取失败（${e.message}）：请确认 Apps Script 已部署“Anyone”访问。`;
-        }
+        msg.textContent = e.message;
       }
     }
 
-    function openCctv(scheme) {
-      window.location.href = scheme;
+    // ==================== 设置：账号、无障碍、二维码 ====================
+    function renderAccountProfile() {
+      const p = data.profile || { name: "", email: "" };
+      document.getElementById("accDisplayName").value = p.name || "";
+      document.getElementById("accGoogleEmail").value = p.email || "";
+      document.getElementById("accStatusText").textContent = p.email ? `${p.name || "User"} (${p.email})` : (p.name || "-");
     }
 
-    renderAccounts();
-    renderCalendar();
+    function saveAccountProfile() {
+      data.profile = {
+        name: (document.getElementById("accDisplayName").value || "").trim(),
+        email: (document.getElementById("accGoogleEmail").value || "").trim()
+      };
+      if (data.profile.name) {
+        data.users[data.activeUser] = data.profile.name;
+      }
+      saveData();
+      renderAccounts();
+      renderAccountProfile();
+    }
+
+    function quickGoogleBind() {
+      const email = prompt("Google Email:");
+      if (!email) return;
+      const name = email.split("@")[0];
+      data.profile = { name, email: email.trim() };
+      saveData();
+      renderAccountProfile();
+    }
+
+    function applyAccessibility() {
+      const a = data.accessibility || { btnOpacity: 100, fontScale: 100 };
+      document.documentElement.style.setProperty("--btn-opacity", (a.btnOpacity / 100).toFixed(2));
+      document.documentElement.style.setProperty("--font-scale", (a.fontScale / 100).toFixed(2));
+      document.getElementById("btnOpacityRange").value = a.btnOpacity;
+      document.getElementById("fontScaleRange").value = a.fontScale;
+      document.getElementById("btnOpacityVal").textContent = `${a.btnOpacity}%`;
+      document.getElementById("fontScaleVal").textContent = `${a.fontScale}%`;
+    }
+
+    function updateAccessibility() {
+      data.accessibility = {
+        btnOpacity: Number(document.getElementById("btnOpacityRange").value),
+        fontScale: Number(document.getElementById("fontScaleRange").value)
+      };
+      saveData();
+      applyAccessibility();
+    }
+
+    function renderSavedQr() {
+      const url = (data.apkUrl || "").trim();
+      document.getElementById("apkDownloadUrlInput").value = url;
+      const box = document.getElementById("qrResultBox");
+      if (!url) {
+        box.classList.add("hidden");
+        return;
+      }
+      document.getElementById("qrImg").src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url)}`;
+      document.getElementById("qrLinkCaption").textContent = url;
+      box.classList.remove("hidden");
+    }
+
+    function generateDownloadQr() {
+      const url = (document.getElementById("apkDownloadUrlInput").value || "").trim();
+      if (!url || !/^https?:\/\//i.test(url)) return alert("http:// or https://");
+      data.apkUrl = url;
+      saveData();
+      renderSavedQr();
+    }
+
+    applyTheme();
+    applyAccessibility();
+    applyLanguage();
     renderStocks();
+    renderSavedQr();
     if (data.sheetUrl) pullFromSheet();
+
+    setTimeout(() => {
+      const splash = document.getElementById("splashScreen");
+      if (splash) splash.classList.add("hide");
+    }, 1200);
   </script>
 </body>
 </html>
