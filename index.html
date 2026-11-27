@@ -720,6 +720,10 @@
   </div>
 
   <script>
+    if (!window.location.search.includes("v=")) {
+      const cleanUrl = window.location.href.split("?")[0];
+      window.location.replace(`${cleanUrl}?v=${Date.now()}`);
+    }
     const I18N = {
       zh: {
         headerTitle: "🏪 Vivo 门店管理",
