@@ -1537,4 +1537,241 @@
       document.getElementById("todayAllStaff").innerHTML = `${selectedDate}: ${daySummary}`;
 
       const monthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`;
-      document.getElementById("monthly
+      document.getElementById("monthlyStatsGrid").innerHTML = data.users.map((u, idx) => {
+        let workDays = 0, offDays = 0, leaveDays = 0;
+        Object.keys(data.shifts).forEach(k => {
+          if (k.startsWith(`${idx}_${monthPrefix}`)) {
+            const val = data.shifts[k];
+            if (val === "早班" || val === "晚班" || val === "full day" || val === "training") workDays++;
+            else if (val === "offday") offDays++;
+            else leaveDays++;
+          }
+        });
+        return `<div class="stat-item"><strong>${u}</strong>${workDays}d · Off ${offDays}d · Leave ${leaveDays}d</div>`;
+      }).join("");
+    }
+
+    const sheetInputEl = document.getElementById("sheetUrlInput");
+    if (sheetInputEl) sheetInputEl.value = data.sheetUrl || "";
+
+    function saveSheetUrl() {
+      data.sheetUrl = document.getElementById("sheetUrlInput").value.trim();
+      saveData();
+      if (data.sheetUrl) pullFromSheet();
+    }
+
+    function renderStocks() {
+      const list = document.getElementById("stockList");
+      if (!list) return;
+      const t = I18N[data.lang] || I18N.zh;
+      const cat = document.getElementById("stockCatFilter")?.value || "ALL";
+      const kw = (document.getElementById("stockSearchInput")?.value || "").trim().toLowerCase();
+
+      const filtered = (data.stocks || []).filter(item => {
+        const matchCat = cat === "ALL" || item.category === cat;
+        const matchKw = !kw ||
+          String(item.model || "").toLowerCase().includes(kw) ||
+          String(item.color || "").toLowerCase().includes(kw);
+        return matchCat && matchKw;
+      });
+
+      if (!filtered.length) {
+        list.innerHTML = `<p class="hint">-</p>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(item => {
+        const realIdx = data.stocks.indexOf(item);
+        const subInfo = [item.category || "", item.color || "", item.price ? `RM${item.price}` : ""].filter(Boolean).join(" · ");
+        return `
+          <div class="stock-card-item">
+            <div class="stock-top-row">
+              <div style="min-width:0;">
+                <span class="stock-model-name">${item.model}</span>
+                <span class="stock-sub-meta">${subInfo}</span>
+              </div>
+              <div class="stock-badges">
+                <div class="stock-big-box">
+                  <span class="stock-big-label">STOCK</span>
+                  <span class="stock-big-num">${item.stock}</span>
+                </div>
+                <div class="sales-side-box">
+                  <span class="sales-side-label">SALES QTY</span>
+                  <span class="sales-side-num">${item.sold || 0}</span>
+                </div>
+              </div>
+            </div>
+            <div class="qty-controls">
+              <button class="btn-return" onclick="handleStockAction(${realIdx}, 'return')">${t.btnReturn}</button>
+              <button class="btn-in" onclick="handleStockAction(${realIdx}, 'add')">${t.btnAdd}</button>
+              <button class="btn-sell" onclick="handleStockAction(${realIdx}, 'minus')">${t.btnMinus}</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function handleStockAction(idx, type) {
+      const item = data.stocks[idx];
+      if (!item) return;
+      let curStock = Number(item.stock) || 0;
+      let curSold = Number(item.sold) || 0;
+      let note = "";
+
+      if (type === "add") {
+        curStock += 1; note = `+1 -> ${curStock}`;
+      } else if (type === "minus") {
+        if (curStock <= 0) return alert("Stock = 0");
+        curStock -= 1; curSold += 1; note = `-1 -> ${curStock}`;
+      } else if (type === "return") {
+        curStock += 1; curSold = Math.max(0, curSold - 1); note = `Return -> ${curStock}`;
+      }
+
+      item.stock = curStock;
+      item.sold = curSold;
+      saveData();
+      renderStocks();
+
+      await syncRowToSheet({
+        sheet: item.sheet,
+        row: item.row,
+        stock: item.stock,
+        sold: item.sold,
+        note: `${item.model} ${note}`
+      });
+    }
+
+    async function syncRowToSheet(payload) {
+      const msg = document.getElementById("stockSyncMsg");
+      const url = (document.getElementById("sheetUrlInput")?.value || data.sheetUrl || "").trim();
+      if (!url) return;
+      if (msg) msg.textContent = `${payload.note}...`;
+      try {
+        await fetch(url, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (msg) msg.textContent = `OK (${new Date().toLocaleTimeString()}): ${payload.note}`;
+      } catch (e) {
+        if (msg) msg.textContent = `Sync error`;
+      }
+    }
+
+    async function pullFromSheet() {
+      const msg = document.getElementById("stockSyncMsg");
+      const url = (document.getElementById("sheetUrlInput")?.value || data.sheetUrl || "").trim();
+      if (!url) return;
+      data.sheetUrl = url;
+      saveData();
+      if (msg) msg.textContent = "Loading...";
+      try {
+        const res = await fetch(url, { cache: "no-store" });
+        const json = JSON.parse(await res.text());
+        const list = Array.isArray(json) ? json : (Array.isArray(json.items) ? json.items : null);
+        if (list) {
+          data.stocks = list.map(it => ({
+            row: Number(it.row),
+            sheet: String(it.sheet || "Daily Sales-Phone"),
+            category: String(it.category || ""),
+            model: String(it.model || "").trim(),
+            color: String(it.color || "").trim(),
+            price: Number(it.price) || 0,
+            sold: Number(it.sold) || 0,
+            stock: Number(it.stock) || 0,
+            demo: Number(it.demo) || 0
+          })).filter(it => it.model && it.row > 0);
+        }
+        if (json && json.schedule && typeof json.schedule === "object") {
+          if (Array.isArray(json.schedule.users) && json.schedule.users.length === 4) {
+            data.users = json.schedule.users;
+          }
+          if (json.schedule.shifts && typeof json.schedule.shifts === "object") {
+            data.shifts = json.schedule.shifts;
+          }
+          renderAccounts();
+          renderCalendar();
+        }
+        saveData();
+        renderStocks();
+        if (msg) msg.textContent = `${data.stocks.length} (${new Date().toLocaleTimeString()})`;
+      } catch (e) {
+        if (msg) msg.textContent = e.message;
+      }
+    }
+
+    function renderAccountProfile() {
+      const p = data.profile || { name: "", email: "", loggedIn: false };
+      document.getElementById("accDisplayName").value = p.name || "";
+      document.getElementById("accGoogleEmail").value = p.email || "";
+      document.getElementById("accStatusText").textContent = p.email ? `${p.name || ""} (${p.email})` : "-";
+    }
+
+    function saveAccountProfile() {
+      const nameVal = (document.getElementById("accDisplayName").value || "").trim();
+      const emailVal = (document.getElementById("accGoogleEmail").value || "").trim();
+      data.profile = { name: nameVal, email: emailVal, loggedIn: Boolean(emailVal) };
+      if (nameVal) data.users[data.activeUser] = nameVal;
+      saveData();
+      renderAccounts();
+      renderAccountProfile();
+      checkAuthGate();
+    }
+
+    function applyAccessibility() {
+      const a = data.accessibility || { btnOpacity: 100, tabBarOpacity: 94, fontScale: 100 };
+      const tabOp = typeof a.tabBarOpacity === "number" ? a.tabBarOpacity : 94;
+      document.documentElement.style.setProperty("--btn-opacity", (a.btnOpacity / 100).toFixed(2));
+      document.documentElement.style.setProperty("--tab-bar-opacity", (tabOp / 100).toFixed(2));
+      document.documentElement.style.setProperty("--font-scale", (a.fontScale / 100).toFixed(2));
+      document.getElementById("btnOpacityRange").value = a.btnOpacity;
+      document.getElementById("tabOpacityRange").value = tabOp;
+      document.getElementById("fontScaleRange").value = a.fontScale;
+      document.getElementById("btnOpacityVal").textContent = `${a.btnOpacity}%`;
+      document.getElementById("tabOpacityVal").textContent = `${tabOp}%`;
+      document.getElementById("fontScaleVal").textContent = `${a.fontScale}%`;
+    }
+
+    function updateAccessibility() {
+      data.accessibility = {
+        btnOpacity: Number(document.getElementById("btnOpacityRange").value),
+        tabBarOpacity: Number(document.getElementById("tabOpacityRange").value),
+        fontScale: Number(document.getElementById("fontScaleRange").value)
+      };
+      saveData();
+      applyAccessibility();
+    }
+
+    function renderSavedQr() {
+      const url = (data.apkUrl || "").trim();
+      document.getElementById("apkDownloadUrlInput").value = url;
+      const box = document.getElementById("qrResultBox");
+      if (!url) { box.classList.add("hidden"); return; }
+      document.getElementById("qrImg").src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+      document.getElementById("qrLinkCaption").textContent = url;
+      box.classList.remove("hidden");
+    }
+
+    function generateDownloadQr() {
+      const url = (document.getElementById("apkDownloadUrlInput").value || "").trim();
+      if (!url || !/^https?:\/\//i.test(url)) return alert("http:// or https://");
+      data.apkUrl = url;
+      saveData();
+      renderSavedQr();
+    }
+
+    applyAccessibility();
+    applyLanguage();
+    renderSavedQr();
+    checkAuthGate();
+    if (data.sheetUrl) pullFromSheet();
+
+    setTimeout(() => {
+      const splash = document.getElementById("splashScreen");
+      if (splash) splash.classList.add("hide");
+      checkAutoReleaseNotes();
+    }, 550);
+  </script>
+</body>
+</html>
