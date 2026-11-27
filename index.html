@@ -120,7 +120,6 @@
       box-shadow: var(--glass-shadow);
     }
 
-    /* 调整顶部安全留白，避免太靠上顶住状态栏 */
     header {
       position: sticky;
       top: 0;
@@ -345,7 +344,6 @@
       cursor: pointer;
     }
 
-    /* 调整底部选择栏位置，避免太贴近手机底部手势条 */
     .tab-bar-wrap {
       position: fixed;
       bottom: calc(var(--safe-bottom) + 28px);
@@ -469,9 +467,12 @@
         <button class="shift-choice" onclick="setShift('annual leave')"><span class="swatch bg-annual"></span><span data-s="annual leave">年假</span></button>
         <button class="shift-choice" onclick="setShift('training')"><span class="swatch bg-training"></span><span data-s="training">培训</span></button>
       </div>
+      <div class="row" style="margin-top:10px;margin-bottom:0;">
+        <button class="primary" style="flex:1;" onclick="randomScheduleWeek()" id="randomWeekBtn">随机安排时间表 (本周)</button>
+        <button style="flex:1;font-weight:700;" onclick="randomScheduleMonth()" id="randomMonthBtn">随机安排整月</button>
+      </div>
     </div>
 
-    <!-- 新增：周排班导出（Copy Text + 制作时间表图片） -->
     <div class="card glass">
       <div class="card-title">
         <span id="exportRosterTitle">周排班分享 (Mon - Sun)</span>
@@ -594,7 +595,7 @@
       <div class="setting-item">
         <div>
           <div class="setting-label" id="checkUpdateLabel">检查更新</div>
-          <div class="setting-desc" id="checkUpdateDesc">当前版本 v1.0.7</div>
+          <div class="setting-desc" id="checkUpdateDesc">当前版本 v1.0.8</div>
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0;">
           <button onclick="openReleaseNotes()" id="openNotesBtn">更新日志</button>
@@ -620,26 +621,25 @@
   </div>
 
   <script>
-    const APP_VERSION = "v1.0.7";
+    const APP_VERSION = "v1.0.8";
 
     const RELEASE_NOTES = [
       {
-        version: "v1.0.7",
+        version: "v1.0.8",
         tag: "Latest",
-        title: "Weekly Roster Image & Copy Text + Safe Spacing",
+        title: "Random Roster Generator & Landscape Stability",
         items: [
-          "Added Mon-Sun weekly schedule generator with one-tap Copy Text and PNG Roster Image export.",
-          "Added Full day shift option and adjusted top/bottom safe margins for mobile screens.",
-          "Removed external Google popup blocker inside WebView for instant login."
+          "Added one-tap random shift scheduling for the selected week or entire month.",
+          "Added Android configChanges support so rotating portrait to landscape keeps state without reload.",
+          "Kept Mon-Sun Copy Text and Roster Image export ready for sharing."
         ]
       },
       {
-        version: "v1.0.6",
+        version: "v1.0.7",
         tag: "",
-        title: "Bottom Bar Opacity & Liquid Glass Notes",
+        title: "Weekly Roster Image & Copy Text",
         items: [
-          "Added independent slider for bottom navigation bar opacity.",
-          "Added Liquid Glass Release Notes modal."
+          "Added Mon-Sun weekly schedule generator with Copy Text and PNG Roster Image export."
         ]
       }
     ];
@@ -669,6 +669,10 @@
         lblName3: "员工 3",
         shiftCardTitle: "选择班次",
         clearShiftBtn: "清除",
+        randomWeekBtn: "随机安排时间表 (本周)",
+        randomMonthBtn: "随机安排整月",
+        randomWeekDone: "已为当前所选周随机安排班次",
+        randomMonthDone: "已为当前月份随机安排班次",
         pullShiftBtn: "同步排班",
         exportRosterTitle: "周排班分享 (Mon - Sun)",
         copyRosterBtn: "Copy Text",
@@ -733,6 +737,10 @@
         lblName3: "Staff 3",
         shiftCardTitle: "Shift",
         clearShiftBtn: "Clear",
+        randomWeekBtn: "Random Schedule (Week)",
+        randomMonthBtn: "Random Month",
+        randomWeekDone: "Random shifts assigned for the selected week",
+        randomMonthDone: "Random shifts assigned for the current month",
         pullShiftBtn: "Sync Shift",
         exportRosterTitle: "Weekly Roster Share (Mon - Sun)",
         copyRosterBtn: "Copy Text",
@@ -797,6 +805,10 @@
         lblName3: "Staf 3",
         shiftCardTitle: "Giliran Kerja",
         clearShiftBtn: "Padam",
+        randomWeekBtn: "Jadual Rawak (Minggu)",
+        randomMonthBtn: "Jadual Rawak Sebulan",
+        randomWeekDone: "Giliran rawak dijana untuk minggu dipilih",
+        randomMonthDone: "Giliran rawak dijana untuk bulan semasa",
         pullShiftBtn: "Segerak Jadual",
         exportRosterTitle: "Kongsi Jadual Mingguan (Mon - Sun)",
         copyRosterBtn: "Copy Text",
@@ -1013,6 +1025,8 @@
       document.getElementById("lblName3").textContent = t.lblName3;
       document.getElementById("shiftCardTitle").textContent = t.shiftCardTitle;
       document.getElementById("clearShiftBtn").textContent = t.clearShiftBtn;
+      document.getElementById("randomWeekBtn").textContent = t.randomWeekBtn;
+      document.getElementById("randomMonthBtn").textContent = t.randomMonthBtn;
       document.getElementById("pullShiftBtn").textContent = t.pullShiftBtn;
       document.getElementById("exportRosterTitle").textContent = t.exportRosterTitle;
       document.getElementById("copyRosterBtn").textContent = t.copyRosterBtn;
@@ -1234,11 +1248,78 @@
       syncScheduleToSheet("push");
     }
 
-    /* 获取选中日期所在周一到周日（Mon - Sun）的 7 天结构化数据 */
+    /* 随机安排排班辅助函数：为某一天分配班次（优先保证至少有人早班、有人晚班或全天，其余轮休/早晚班） */
+    function assignRandomShiftsForDate(dateStr) {
+      const activeIndices = data.users
+        .map((u, idx) => ({ name: (u || "").trim(), idx }))
+        .filter(x => x.name && !/^员工\s*[1-3]$/i.test(x.name) && !/^Staff\s*[1-3]$/i.test(x.name));
+      const pool = activeIndices.length >= 2 ? activeIndices : data.users.map((u, idx) => ({ name: u, idx }));
+
+      if (pool.length === 0) return;
+
+      const shuffled = [...pool].sort(() => Math.random() - 0.5);
+      const dayOfWeek = new Date(dateStr + "T00:00:00").getDay(); // 0=Sun, 6=Sat
+
+      if (shuffled.length === 1) {
+        data.shifts[`${shuffled[0].idx}_${dateStr}`] = (dayOfWeek === 0 || dayOfWeek === 6) ? "full day" : "早班";
+        return;
+      }
+
+      if (shuffled.length === 2) {
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+          data.shifts[`${shuffled[0].idx}_${dateStr}`] = "full day";
+          data.shifts[`${shuffled[1].idx}_${dateStr}`] = "full day";
+        } else {
+          const modes = [
+            ["早班", "晚班"],
+            ["晚班", "早班"],
+            ["full day", "offday"],
+            ["offday", "full day"]
+          ];
+          const pick = modes[Math.floor(Math.random() * modes.length)];
+          data.shifts[`${shuffled[0].idx}_${dateStr}`] = pick[0];
+          data.shifts[`${shuffled[1].idx}_${dateStr}`] = pick[1];
+        }
+        return;
+      }
+
+      const workChoices = ["早班", "晚班", "full day", "offday"];
+      shuffled.forEach((person, i) => {
+        if (i === 0) data.shifts[`${person.idx}_${dateStr}`] = "早班";
+        else if (i === 1) data.shifts[`${person.idx}_${dateStr}`] = "晚班";
+        else data.shifts[`${person.idx}_${dateStr}`] = workChoices[Math.floor(Math.random() * workChoices.length)];
+      });
+    }
+
+    function randomScheduleWeek() {
+      const t = I18N[data.lang] || I18N.zh;
+      const info = getWeeklyRosterData();
+      info.days.forEach(d => assignRandomShiftsForDate(d.dateStr));
+      saveData();
+      renderCalendar();
+      syncScheduleToSheet("push");
+      const hintEl = document.getElementById("rosterActionHint");
+      if (hintEl) hintEl.textContent = `${t.randomWeekDone} (${info.rangeText})`;
+    }
+
+    function randomScheduleMonth() {
+      const t = I18N[data.lang] || I18N.zh;
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        assignRandomShiftsForDate(dateStr);
+      }
+      saveData();
+      renderCalendar();
+      syncScheduleToSheet("push");
+      const hintEl = document.getElementById("rosterActionHint");
+      if (hintEl) hintEl.textContent = `${t.randomMonthDone} (${currentYear}-${String(currentMonth + 1).padStart(2, "0")})`;
+    }
+
     function getWeeklyRosterData() {
       const parts = selectedDate.split("-").map(Number);
       const base = new Date(parts[0], parts[1] - 1, parts[2]);
-      const dayOfWeek = base.getDay(); // 0=Sun, 1=Mon...
+      const dayOfWeek = base.getDay();
       const diffToMon = dayOfWeek === 0 ? -6 : (1 - dayOfWeek);
       const monday = new Date(base);
       monday.setDate(base.getDate() + diffToMon);
@@ -1347,7 +1428,6 @@
       canvas.height = height;
       const ctx = canvas.getContext("2d");
 
-      // 背景渐变
       const bgGrad = ctx.createLinearGradient(0, 0, width, height);
       bgGrad.addColorStop(0, "#020617");
       bgGrad.addColorStop(0.5, "#0f172a");
@@ -1355,13 +1435,11 @@
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // 装饰光晕
       ctx.fillStyle = "rgba(59, 130, 246, 0.22)";
       ctx.beginPath();
       ctx.arc(width - 90, 90, 170, 0, Math.PI * 2);
       ctx.fill();
 
-      // 顶部标题
       ctx.fillStyle = "#ffffff";
       ctx.font = "bold 32px sans-serif";
       ctx.fillText(info.shopTitle, 40, 62);
@@ -1370,7 +1448,6 @@
       ctx.font = "600 20px sans-serif";
       ctx.fillText(`Weekly Schedule (${info.rangeText})`, 40, 96);
 
-      // 每天的液态玻璃卡片
       info.days.forEach((d, index) => {
         const y = headerHeight + index * rowHeight;
         drawRoundRect(ctx, 36, y, width - 72, rowHeight - 14, 20);
@@ -1380,7 +1457,6 @@
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        // 左侧星期徽章
         drawRoundRect(ctx, 54, y + 18, 96, 62, 14);
         ctx.fillStyle = "rgba(37, 99, 235, 0.55)";
         ctx.fill();
@@ -1393,7 +1469,6 @@
         ctx.font = "600 15px sans-serif";
         ctx.fillText(d.shortDate, 78, y + 70);
 
-        // 右侧班次明细
         const lines = [];
         if (d.fullDay.length) lines.push({ label: "Full day", val: d.fullDay.join(", "), color: "#38bdf8" });
         if (d.morning.length) lines.push({ label: "Morning", val: d.morning.join(", "), color: "#93c5fd" });
@@ -1462,241 +1537,4 @@
       document.getElementById("todayAllStaff").innerHTML = `${selectedDate}: ${daySummary}`;
 
       const monthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`;
-      document.getElementById("monthlyStatsGrid").innerHTML = data.users.map((u, idx) => {
-        let workDays = 0, offDays = 0, leaveDays = 0;
-        Object.keys(data.shifts).forEach(k => {
-          if (k.startsWith(`${idx}_${monthPrefix}`)) {
-            const val = data.shifts[k];
-            if (val === "早班" || val === "晚班" || val === "full day" || val === "training") workDays++;
-            else if (val === "offday") offDays++;
-            else leaveDays++;
-          }
-        });
-        return `<div class="stat-item"><strong>${u}</strong>${workDays}d · Off ${offDays}d · Leave ${leaveDays}d</div>`;
-      }).join("");
-    }
-
-    const sheetInputEl = document.getElementById("sheetUrlInput");
-    if (sheetInputEl) sheetInputEl.value = data.sheetUrl || "";
-
-    function saveSheetUrl() {
-      data.sheetUrl = document.getElementById("sheetUrlInput").value.trim();
-      saveData();
-      if (data.sheetUrl) pullFromSheet();
-    }
-
-    function renderStocks() {
-      const list = document.getElementById("stockList");
-      if (!list) return;
-      const t = I18N[data.lang] || I18N.zh;
-      const cat = document.getElementById("stockCatFilter")?.value || "ALL";
-      const kw = (document.getElementById("stockSearchInput")?.value || "").trim().toLowerCase();
-
-      const filtered = (data.stocks || []).filter(item => {
-        const matchCat = cat === "ALL" || item.category === cat;
-        const matchKw = !kw ||
-          String(item.model || "").toLowerCase().includes(kw) ||
-          String(item.color || "").toLowerCase().includes(kw);
-        return matchCat && matchKw;
-      });
-
-      if (!filtered.length) {
-        list.innerHTML = `<p class="hint">-</p>`;
-        return;
-      }
-
-      list.innerHTML = filtered.map(item => {
-        const realIdx = data.stocks.indexOf(item);
-        const subInfo = [item.category || "", item.color || "", item.price ? `RM${item.price}` : ""].filter(Boolean).join(" · ");
-        return `
-          <div class="stock-card-item">
-            <div class="stock-top-row">
-              <div style="min-width:0;">
-                <span class="stock-model-name">${item.model}</span>
-                <span class="stock-sub-meta">${subInfo}</span>
-              </div>
-              <div class="stock-badges">
-                <div class="stock-big-box">
-                  <span class="stock-big-label">STOCK</span>
-                  <span class="stock-big-num">${item.stock}</span>
-                </div>
-                <div class="sales-side-box">
-                  <span class="sales-side-label">SALES QTY</span>
-                  <span class="sales-side-num">${item.sold || 0}</span>
-                </div>
-              </div>
-            </div>
-            <div class="qty-controls">
-              <button class="btn-return" onclick="handleStockAction(${realIdx}, 'return')">${t.btnReturn}</button>
-              <button class="btn-in" onclick="handleStockAction(${realIdx}, 'add')">${t.btnAdd}</button>
-              <button class="btn-sell" onclick="handleStockAction(${realIdx}, 'minus')">${t.btnMinus}</button>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    async function handleStockAction(idx, type) {
-      const item = data.stocks[idx];
-      if (!item) return;
-      let curStock = Number(item.stock) || 0;
-      let curSold = Number(item.sold) || 0;
-      let note = "";
-
-      if (type === "add") {
-        curStock += 1; note = `+1 -> ${curStock}`;
-      } else if (type === "minus") {
-        if (curStock <= 0) return alert("Stock = 0");
-        curStock -= 1; curSold += 1; note = `-1 -> ${curStock}`;
-      } else if (type === "return") {
-        curStock += 1; curSold = Math.max(0, curSold - 1); note = `Return -> ${curStock}`;
-      }
-
-      item.stock = curStock;
-      item.sold = curSold;
-      saveData();
-      renderStocks();
-
-      await syncRowToSheet({
-        sheet: item.sheet,
-        row: item.row,
-        stock: item.stock,
-        sold: item.sold,
-        note: `${item.model} ${note}`
-      });
-    }
-
-    async function syncRowToSheet(payload) {
-      const msg = document.getElementById("stockSyncMsg");
-      const url = (document.getElementById("sheetUrlInput")?.value || data.sheetUrl || "").trim();
-      if (!url) return;
-      if (msg) msg.textContent = `${payload.note}...`;
-      try {
-        await fetch(url, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        if (msg) msg.textContent = `OK (${new Date().toLocaleTimeString()}): ${payload.note}`;
-      } catch (e) {
-        if (msg) msg.textContent = `Sync error`;
-      }
-    }
-
-    async function pullFromSheet() {
-      const msg = document.getElementById("stockSyncMsg");
-      const url = (document.getElementById("sheetUrlInput")?.value || data.sheetUrl || "").trim();
-      if (!url) return;
-      data.sheetUrl = url;
-      saveData();
-      if (msg) msg.textContent = "Loading...";
-      try {
-        const res = await fetch(url, { cache: "no-store" });
-        const json = JSON.parse(await res.text());
-        const list = Array.isArray(json) ? json : (Array.isArray(json.items) ? json.items : null);
-        if (list) {
-          data.stocks = list.map(it => ({
-            row: Number(it.row),
-            sheet: String(it.sheet || "Daily Sales-Phone"),
-            category: String(it.category || ""),
-            model: String(it.model || "").trim(),
-            color: String(it.color || "").trim(),
-            price: Number(it.price) || 0,
-            sold: Number(it.sold) || 0,
-            stock: Number(it.stock) || 0,
-            demo: Number(it.demo) || 0
-          })).filter(it => it.model && it.row > 0);
-        }
-        if (json && json.schedule && typeof json.schedule === "object") {
-          if (Array.isArray(json.schedule.users) && json.schedule.users.length === 4) {
-            data.users = json.schedule.users;
-          }
-          if (json.schedule.shifts && typeof json.schedule.shifts === "object") {
-            data.shifts = json.schedule.shifts;
-          }
-          renderAccounts();
-          renderCalendar();
-        }
-        saveData();
-        renderStocks();
-        if (msg) msg.textContent = `${data.stocks.length} (${new Date().toLocaleTimeString()})`;
-      } catch (e) {
-        if (msg) msg.textContent = e.message;
-      }
-    }
-
-    function renderAccountProfile() {
-      const p = data.profile || { name: "", email: "", loggedIn: false };
-      document.getElementById("accDisplayName").value = p.name || "";
-      document.getElementById("accGoogleEmail").value = p.email || "";
-      document.getElementById("accStatusText").textContent = p.email ? `${p.name || ""} (${p.email})` : "-";
-    }
-
-    function saveAccountProfile() {
-      const nameVal = (document.getElementById("accDisplayName").value || "").trim();
-      const emailVal = (document.getElementById("accGoogleEmail").value || "").trim();
-      data.profile = { name: nameVal, email: emailVal, loggedIn: Boolean(emailVal) };
-      if (nameVal) data.users[data.activeUser] = nameVal;
-      saveData();
-      renderAccounts();
-      renderAccountProfile();
-      checkAuthGate();
-    }
-
-    function applyAccessibility() {
-      const a = data.accessibility || { btnOpacity: 100, tabBarOpacity: 94, fontScale: 100 };
-      const tabOp = typeof a.tabBarOpacity === "number" ? a.tabBarOpacity : 94;
-      document.documentElement.style.setProperty("--btn-opacity", (a.btnOpacity / 100).toFixed(2));
-      document.documentElement.style.setProperty("--tab-bar-opacity", (tabOp / 100).toFixed(2));
-      document.documentElement.style.setProperty("--font-scale", (a.fontScale / 100).toFixed(2));
-      document.getElementById("btnOpacityRange").value = a.btnOpacity;
-      document.getElementById("tabOpacityRange").value = tabOp;
-      document.getElementById("fontScaleRange").value = a.fontScale;
-      document.getElementById("btnOpacityVal").textContent = `${a.btnOpacity}%`;
-      document.getElementById("tabOpacityVal").textContent = `${tabOp}%`;
-      document.getElementById("fontScaleVal").textContent = `${a.fontScale}%`;
-    }
-
-    function updateAccessibility() {
-      data.accessibility = {
-        btnOpacity: Number(document.getElementById("btnOpacityRange").value),
-        tabBarOpacity: Number(document.getElementById("tabOpacityRange").value),
-        fontScale: Number(document.getElementById("fontScaleRange").value)
-      };
-      saveData();
-      applyAccessibility();
-    }
-
-    function renderSavedQr() {
-      const url = (data.apkUrl || "").trim();
-      document.getElementById("apkDownloadUrlInput").value = url;
-      const box = document.getElementById("qrResultBox");
-      if (!url) { box.classList.add("hidden"); return; }
-      document.getElementById("qrImg").src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
-      document.getElementById("qrLinkCaption").textContent = url;
-      box.classList.remove("hidden");
-    }
-
-    function generateDownloadQr() {
-      const url = (document.getElementById("apkDownloadUrlInput").value || "").trim();
-      if (!url || !/^https?:\/\//i.test(url)) return alert("http:// or https://");
-      data.apkUrl = url;
-      saveData();
-      renderSavedQr();
-    }
-
-    applyAccessibility();
-    applyLanguage();
-    renderSavedQr();
-    checkAuthGate();
-    if (data.sheetUrl) pullFromSheet();
-
-    setTimeout(() => {
-      const splash = document.getElementById("splashScreen");
-      if (splash) splash.classList.add("hide");
-      checkAutoReleaseNotes();
-    }, 550);
-  </script>
-</body>
-</html>
+      document.getElementById("monthly
