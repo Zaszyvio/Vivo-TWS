@@ -11,6 +11,7 @@
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --btn-opacity: 1;
+      --tab-bar-opacity: 0.92;
       --font-scale: 1;
       --blue: #2563eb;
       --blue-bright: #3b82f6;
@@ -21,13 +22,15 @@
       --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.05) 100%);
       --glass-border: rgba(255, 255, 255, 0.22);
       --glass-shadow: 0 12px 28px rgba(0, 0, 0, 0.65);
+      --tab-bar-bg: linear-gradient(145deg, rgba(30, 41, 59, 0.88) 0%, rgba(15, 23, 42, 0.94) 100%);
+      --tab-bar-border: rgba(255, 255, 255, 0.28);
       --surface-soft: rgba(255, 255, 255, 0.08);
       --surface-border: rgba(255, 255, 255, 0.2);
       --input-bg: rgba(255, 255, 255, 0.11);
       --placeholder: rgba(203, 213, 225, 0.6);
       --tab-text: rgba(255, 255, 255, 0.72);
       --tab-active-text: #ffffff;
-      --indicator-bg: linear-gradient(145deg, rgba(59, 130, 246, 0.42), rgba(29, 78, 216, 0.35));
+      --indicator-bg: linear-gradient(145deg, rgba(59, 130, 246, 0.48), rgba(29, 78, 216, 0.42));
       --indicator-border: rgba(255, 255, 255, 0.65);
     }
 
@@ -35,6 +38,7 @@
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --btn-opacity: var(--btn-opacity, 1);
+      --tab-bar-opacity: var(--tab-bar-opacity, 0.95);
       --font-scale: var(--font-scale, 1);
       --blue: #2563eb;
       --blue-bright: #1d4ed8;
@@ -45,6 +49,8 @@
       --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(239, 246, 255, 0.82) 100%);
       --glass-border: rgba(37, 99, 235, 0.2);
       --glass-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+      --tab-bar-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(239, 246, 255, 0.92) 100%);
+      --tab-bar-border: rgba(37, 99, 235, 0.28);
       --surface-soft: rgba(37, 99, 235, 0.06);
       --surface-border: rgba(37, 99, 235, 0.18);
       --input-bg: rgba(255, 255, 255, 0.92);
@@ -263,6 +269,79 @@
     }
     .qr-box img { width: 170px; height: 170px; display: block; }
 
+    /* 液态玻璃 Release Notes 弹窗 */
+    .lg-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: rgba(2, 6, 23, 0.52);
+      backdrop-filter: blur(18px) saturate(140%);
+      -webkit-backdrop-filter: blur(18px) saturate(140%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    .lg-backdrop.hidden { display: none !important; }
+    .lg-modal {
+      width: 100%;
+      max-width: 440px;
+      max-height: 78vh;
+      overflow-y: auto;
+      border-radius: 26px;
+      padding: 20px;
+      background: linear-gradient(155deg, rgba(255, 255, 255, 0.18) 0%, rgba(30, 41, 59, 0.72) 45%, rgba(15, 23, 42, 0.88) 100%);
+      backdrop-filter: blur(28px) saturate(170%);
+      -webkit-backdrop-filter: blur(28px) saturate(170%);
+      border: 1px solid rgba(255, 255, 255, 0.34);
+      box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.55),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.12),
+        0 24px 60px rgba(0, 0, 0, 0.72);
+      color: #f8fafc;
+    }
+    .lg-header {
+      font-size: 1.08rem;
+      font-weight: 800;
+      margin: 0 0 14px;
+      letter-spacing: 0.2px;
+    }
+    .lg-block {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    }
+    .lg-block:last-of-type { border-bottom: none; }
+    .lg-ver-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #93c5fd;
+      margin-bottom: 6px;
+    }
+    .lg-list {
+      margin: 0;
+      padding-left: 16px;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      color: #e2e8f0;
+    }
+    .lg-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+    .lg-close-btn {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08));
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      color: #ffffff;
+      padding: 8px 18px;
+      border-radius: 14px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* 底部选择栏（独立 --tab-bar-opacity 滑块调节 + 实感毛玻璃底色） */
     .tab-bar-wrap {
       position: fixed;
       bottom: calc(var(--safe-bottom) + 18px);
@@ -271,11 +350,12 @@
       width: calc(100% - 24px);
       max-width: 460px;
       z-index: 40;
-      opacity: var(--btn-opacity);
+      opacity: var(--tab-bar-opacity);
     }
     .tab-bar {
       position: relative; display: flex; padding: 7px; border-radius: 999px;
-      background: var(--glass-bg); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
+      background: var(--tab-bar-bg); border: 1px solid var(--tab-bar-border); box-shadow: var(--glass-shadow);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
       touch-action: none; user-select: none;
     }
     .tab-indicator {
@@ -319,6 +399,16 @@
         <button class="primary" style="flex:1;" onclick="submitGoogleLogin()" id="gateLoginBtn">确认 Google 账号登录</button>
       </div>
       <p class="hint" id="gateErrorText"></p>
+    </div>
+  </div>
+
+  <div class="lg-backdrop hidden" id="releaseNotesModal" onclick="handleNotesBackdropClick(event)">
+    <div class="lg-modal">
+      <div class="lg-header" id="lgModalTitle">Vivo Store Release Notes</div>
+      <div id="lgVersionList"></div>
+      <div class="lg-footer">
+        <button class="lg-close-btn" onclick="closeReleaseNotes()" id="lgCloseBtn">Close</button>
+      </div>
     </div>
   </div>
 
@@ -440,10 +530,17 @@
       <div class="card-title"><span id="a11yTitle">无障碍设置</span></div>
       <div class="setting-item">
         <div>
-          <div class="setting-label" id="btnOpacityLabel">按键与选择栏透明度</div>
+          <div class="setting-label" id="btnOpacityLabel">按键透明度</div>
           <div class="setting-desc" id="btnOpacityVal">100%</div>
         </div>
         <input type="range" min="35" max="100" step="5" id="btnOpacityRange" oninput="updateAccessibility()" style="width:140px;" />
+      </div>
+      <div class="setting-item">
+        <div>
+          <div class="setting-label" id="tabOpacityLabel">底部选择栏透明度</div>
+          <div class="setting-desc" id="tabOpacityVal">92%</div>
+        </div>
+        <input type="range" min="40" max="100" step="2" id="tabOpacityRange" oninput="updateAccessibility()" style="width:140px;" />
       </div>
       <div class="setting-item">
         <div>
@@ -472,7 +569,10 @@
           <div class="setting-label" id="checkUpdateLabel">检查更新</div>
           <div class="setting-desc" id="checkUpdateDesc">当前版本 v1.0.6</div>
         </div>
-        <button class="primary" onclick="updateNow()" id="checkUpdateBtn">检查更新</button>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button onclick="openReleaseNotes()" id="openNotesBtn">更新日志</button>
+          <button class="primary" onclick="updateNow()" id="checkUpdateBtn">检查更新</button>
+        </div>
       </div>
     </div>
   </div>
@@ -495,6 +595,28 @@
   <script>
     const APP_VERSION = "v1.0.6";
     const GOOGLE_CLIENT_ID = "281992057610-o1koq7vorbau2vsmathogrld0rfsbhcd.apps.googleusercontent.com";
+
+    const RELEASE_NOTES = [
+      {
+        version: "v1.0.6",
+        tag: "Latest",
+        title: "Bottom Bar Opacity Slider & Release Notes",
+        items: [
+          "Added independent slider to adjust bottom navigation bar opacity and improved glass contrast.",
+          "Added Liquid Glass Release Notes modal with automatic new-version prompt and manual viewer.",
+          "Integrated Google Identity Services sign-in gate and Manager/Staff role separation."
+        ]
+      },
+      {
+        version: "v1.0.5",
+        tag: "",
+        title: "Trilingual UI & APK QR Code",
+        items: [
+          "Supported Simplified Chinese, English, and Bahasa Melayu switching.",
+          "Added APK download QR code generator and version badge."
+        ]
+      }
+    ];
 
     const urlParams = new URLSearchParams(window.location.search);
     const APP_ROLE = urlParams.get("role") === "staff" ? "staff" : "manager";
@@ -533,13 +655,15 @@
         saveAccBtn: "保存账号",
         logoutBtn: "切换 Google 账号",
         a11yTitle: "无障碍设置",
-        btnOpacityLabel: "按键与选择栏透明度",
+        btnOpacityLabel: "按键透明度",
+        tabOpacityLabel: "底部选择栏透明度",
         fontScaleLabel: "字体大小",
         langAndUpdateTitle: "语言与更新",
         langLabel: "语言",
         langDesc: "简体中文 / English / Bahasa Melayu",
         checkUpdateLabel: "检查更新",
         checkUpdateDesc: `当前版本 ${APP_VERSION}，点击刷新获取最新网页版本`,
+        openNotesBtn: "更新日志",
         checkUpdateBtn: "检查更新",
         qrCardTitle: "App 下载二维码",
         genQrBtn: "生成二维码",
@@ -589,13 +713,15 @@
         saveAccBtn: "Save Account",
         logoutBtn: "Switch Google Account",
         a11yTitle: "Accessibility",
-        btnOpacityLabel: "Button & Bar Opacity",
+        btnOpacityLabel: "Button Opacity",
+        tabOpacityLabel: "Bottom Bar Opacity",
         fontScaleLabel: "Font Size",
         langAndUpdateTitle: "Language & Update",
         langLabel: "Language",
         langDesc: "简体中文 / English / Bahasa Melayu",
         checkUpdateLabel: "Check for Updates",
         checkUpdateDesc: `Current version ${APP_VERSION}. Tap to reload latest web build`,
+        openNotesBtn: "Release Notes",
         checkUpdateBtn: "Check Update",
         qrCardTitle: "App Download QR Code",
         genQrBtn: "Generate QR",
@@ -645,13 +771,15 @@
         saveAccBtn: "Simpan Akaun",
         logoutBtn: "Tukar Akaun Google",
         a11yTitle: "Kebolehcapaian",
-        btnOpacityLabel: "Kelegapan Butang & Bar",
+        btnOpacityLabel: "Kelegapan Butang",
+        tabOpacityLabel: "Kelegapan Bar Bawah",
         fontScaleLabel: "Saiz Fon",
         langAndUpdateTitle: "Bahasa & Kemas Kini",
         langLabel: "Bahasa",
         langDesc: "简体中文 / English / Bahasa Melayu",
         checkUpdateLabel: "Semak Kemas Kini",
         checkUpdateDesc: `Versi semasa ${APP_VERSION}. Tekan untuk muat semula versi web terkini`,
+        openNotesBtn: "Nota Keluaran",
         checkUpdateBtn: "Semak Kini",
         qrCardTitle: "Kod QR Muat Turun App",
         genQrBtn: "Jana QR",
@@ -670,7 +798,7 @@
       }
     };
 
-    const KEY = "store_liquid_v7";
+    const KEY = "store_liquid_v8";
     const THEME_KEY = "store_liquid_theme";
     const todayStr = new Date().toISOString().slice(0, 10);
 
@@ -691,14 +819,56 @@
       sheetUrl: "https://script.google.com/macros/s/AKfycbwKrZdVpaIM-aPyLsD08hzVbzxxteBIEecvCi/exec",
       stocks: [],
       profile: { name: "", email: "", loggedIn: false },
-      accessibility: { btnOpacity: 100, fontScale: 100 },
+      accessibility: { btnOpacity: 100, tabBarOpacity: 92, fontScale: 100 },
       apkUrl: ""
     };
     if (!I18N[data.lang]) data.lang = "zh";
     if (!data.profile) data.profile = { name: "", email: "", loggedIn: false };
+    if (!data.accessibility) data.accessibility = { btnOpacity: 100, tabBarOpacity: 92, fontScale: 100 };
+    if (typeof data.accessibility.tabBarOpacity !== "number") data.accessibility.tabBarOpacity = 92;
 
     function saveData() {
       localStorage.setItem(KEY, JSON.stringify(data));
+    }
+
+    function renderReleaseNotes() {
+      const container = document.getElementById("lgVersionList");
+      if (!container) return;
+      container.innerHTML = RELEASE_NOTES.map(v => `
+        <div class="lg-block">
+          <div class="lg-ver-title">${v.version}${v.tag ? ` (${v.tag})` : ""} - ${v.title}</div>
+          <ul class="lg-list">
+            ${v.items.map(item => `<li>${item}</li>`).join("")}
+          </ul>
+        </div>
+      `).join("");
+    }
+
+    function openReleaseNotes() {
+      renderReleaseNotes();
+      const modal = document.getElementById("releaseNotesModal");
+      if (modal) modal.classList.remove("hidden");
+    }
+
+    function closeReleaseNotes() {
+      const modal = document.getElementById("releaseNotesModal");
+      if (modal) modal.classList.add("hidden");
+      localStorage.setItem("vivo_last_seen_version", APP_VERSION);
+    }
+
+    function handleNotesBackdropClick(e) {
+      if (e.target && e.target.id === "releaseNotesModal") {
+        closeReleaseNotes();
+      }
+    }
+
+    function checkAutoReleaseNotes() {
+      const seen = localStorage.getItem("vivo_last_seen_version");
+      if (seen && seen !== APP_VERSION) {
+        openReleaseNotes();
+      } else if (!seen) {
+        localStorage.setItem("vivo_last_seen_version", APP_VERSION);
+      }
     }
 
     function applyRoleRestrictions() {
@@ -854,12 +1024,14 @@
       document.getElementById("logoutBtn").textContent = t.logoutBtn;
       document.getElementById("a11yTitle").textContent = t.a11yTitle;
       document.getElementById("btnOpacityLabel").textContent = t.btnOpacityLabel;
+      document.getElementById("tabOpacityLabel").textContent = t.tabOpacityLabel;
       document.getElementById("fontScaleLabel").textContent = t.fontScaleLabel;
       document.getElementById("langAndUpdateTitle").textContent = t.langAndUpdateTitle;
       document.getElementById("langLabel").textContent = t.langLabel;
       document.getElementById("langDesc").textContent = t.langDesc;
       document.getElementById("checkUpdateLabel").innerHTML = `${t.checkUpdateLabel} <span style="color:var(--blue-accent);">${APP_VERSION}</span>`;
       document.getElementById("checkUpdateDesc").textContent = t.checkUpdateDesc;
+      document.getElementById("openNotesBtn").textContent = t.openNotesBtn;
       document.getElementById("checkUpdateBtn").textContent = t.checkUpdateBtn;
       document.getElementById("qrCardTitle").textContent = t.qrCardTitle;
       document.getElementById("genQrBtn").textContent = t.genQrBtn;
@@ -1262,18 +1434,23 @@
     }
 
     function applyAccessibility() {
-      const a = data.accessibility || { btnOpacity: 100, fontScale: 100 };
+      const a = data.accessibility || { btnOpacity: 100, tabBarOpacity: 92, fontScale: 100 };
+      const tabOp = typeof a.tabBarOpacity === "number" ? a.tabBarOpacity : 92;
       document.documentElement.style.setProperty("--btn-opacity", (a.btnOpacity / 100).toFixed(2));
+      document.documentElement.style.setProperty("--tab-bar-opacity", (tabOp / 100).toFixed(2));
       document.documentElement.style.setProperty("--font-scale", (a.fontScale / 100).toFixed(2));
       document.getElementById("btnOpacityRange").value = a.btnOpacity;
+      document.getElementById("tabOpacityRange").value = tabOp;
       document.getElementById("fontScaleRange").value = a.fontScale;
       document.getElementById("btnOpacityVal").textContent = `${a.btnOpacity}%`;
+      document.getElementById("tabOpacityVal").textContent = `${tabOp}%`;
       document.getElementById("fontScaleVal").textContent = `${a.fontScale}%`;
     }
 
     function updateAccessibility() {
       data.accessibility = {
         btnOpacity: Number(document.getElementById("btnOpacityRange").value),
+        tabBarOpacity: Number(document.getElementById("tabOpacityRange").value),
         fontScale: Number(document.getElementById("fontScaleRange").value)
       };
       saveData();
@@ -1309,6 +1486,7 @@
     setTimeout(() => {
       const splash = document.getElementById("splashScreen");
       if (splash) splash.classList.add("hide");
+      checkAutoReleaseNotes();
     }, 550);
   </script>
 </body>
