@@ -2,11 +2,10 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>门店管理 Liquid Glass</title>
   <style>
-    /* ==================== 深色模式变量（纯黑底 + 黑白蓝液态玻璃） ==================== */
     :root, [data-theme="dark"] {
       --blue: #2563eb;
       --blue-bright: #3b82f6;
@@ -30,7 +29,44 @@
       --indicator-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.28) 0%, rgba(147, 197, 253, 0.18) 50%, rgba(255, 255, 255, 0.24) 100%);
       --indicator-border: rgba(255, 255, 255, 0.78);
     }
+:root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
 
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--bg-page);
+      color: var(--text);
+      padding-top: calc(var(--safe-top) + 12px);
+      padding-bottom: calc(var(--safe-bottom) + 16px);
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
+    }
+
+    .update-card {
+      margin: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+    }
+
+    .update-btn {
+      margin-top: 10px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--indicator-border);
+      background: var(--indicator-bg);
+      color: var(--tab-active-text);
+      font-size: 14px;
+      cursor: pointer;
+    }
     /* ==================== 浅色模式变量（纯白底 + 冰蓝液态玻璃） ==================== */
     [data-theme="light"] {
       --blue: #2563eb;
