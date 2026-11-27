@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -83,7 +83,6 @@
       transition: background-color 0.25s ease, color 0.25s ease;
     }
 
-    /* 开场页面 Splash Screen */
     #splashScreen {
       position: fixed;
       inset: 0;
@@ -478,7 +477,6 @@
     }
     .qr-box img { width: 176px; height: 176px; display: block; }
 
-    /* iOS 风格放大底部胶囊栏 */
     .tab-bar-wrap {
       position: fixed;
       bottom: calc(var(--safe-bottom) + 18px);
@@ -542,12 +540,12 @@
   <div id="splashScreen">
     <div class="splash-logo">V</div>
     <div class="splash-title" id="splashTitle">Vivo Store Manager</div>
-    <div class="splash-sub" id="splashSub">Loading workspace...</div>
+    <div class="splash-sub" id="splashSub">正在启动门店工作台...</div>
   </div>
 
   <header class="glass">
-    <h1 id="appHeaderTitle">🏪 Vivo Store</h1>
-    <button class="theme-btn" id="themeToggleBtn" onclick="cycleTheme()">🖥️ Auto</button>
+    <h1 id="appHeaderTitle">🏪 Vivo 门店管理</h1>
+    <button class="theme-btn" id="themeToggleBtn" onclick="cycleTheme()">🖥️ 自动</button>
   </header>
 
   <div class="container" id="tab-schedule">
@@ -560,7 +558,7 @@
         <button class="cal-nav" onclick="changeMonth(1)">›</button>
       </div>
       <div class="cal-weekdays">
-        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+        <div data-w="0">日</div><div data-w="1">一</div><div data-w="2">二</div><div data-w="3">三</div><div data-w="4">四</div><div data-w="5">五</div><div data-w="6">六</div>
       </div>
       <div class="cal-grid" id="calGrid"></div>
       <p class="hint" id="selectedDateInfo">-</p>
@@ -568,24 +566,24 @@
 
     <div class="card glass">
       <div class="card-title">
-        <span id="staffCardTitle">Staff Names</span>
-        <button class="primary" style="padding:6px 12px;font-size:0.76rem;" onclick="saveNames()" id="saveNamesBtn">Save</button>
+        <span id="staffCardTitle">人员名字设置</span>
+        <button class="primary" style="padding:6px 12px;font-size:0.76rem;" onclick="saveNames()" id="saveNamesBtn">保存</button>
       </div>
       <div class="name-grid">
         <div class="name-box">
-          <label id="lblName0">Manager</label>
+          <label id="lblName0">店长</label>
           <input type="text" id="name_0" />
         </div>
         <div class="name-box">
-          <label id="lblName1">Staff 1</label>
+          <label id="lblName1">员工 1</label>
           <input type="text" id="name_1" />
         </div>
         <div class="name-box">
-          <label id="lblName2">Staff 2</label>
+          <label id="lblName2">员工 2</label>
           <input type="text" id="name_2" />
         </div>
         <div class="name-box">
-          <label id="lblName3">Staff 3</label>
+          <label id="lblName3">员工 3</label>
           <input type="text" id="name_3" />
         </div>
       </div>
@@ -593,21 +591,21 @@
 
     <div class="card glass">
       <div class="card-title">
-        <span id="shiftCardTitle">Shift</span>
-        <button style="padding:5px 10px;font-size:0.74rem;" onclick="setShift('')" id="clearShiftBtn">Clear</button>
+        <span id="shiftCardTitle">选择班次</span>
+        <button style="padding:5px 10px;font-size:0.74rem;" onclick="setShift('')" id="clearShiftBtn">清除</button>
       </div>
       <div class="shift-options">
-        <button class="shift-choice" onclick="setShift('早班')"><span class="swatch bg-morning"></span><span data-s="早班">Morning</span></button>
-        <button class="shift-choice" onclick="setShift('晚班')"><span class="swatch bg-evening"></span><span data-s="晚班">Evening</span></button>
+        <button class="shift-choice" onclick="setShift('早班')"><span class="swatch bg-morning"></span><span data-s="早班">早班</span></button>
+        <button class="shift-choice" onclick="setShift('晚班')"><span class="swatch bg-evening"></span><span data-s="晚班">晚班</span></button>
         <button class="shift-choice" onclick="setShift('offday')"><span class="swatch bg-offday"></span><span data-s="offday">Offday</span></button>
-        <button class="shift-choice" onclick="setShift('unpaid leave')"><span class="swatch bg-unpaid"></span><span data-s="unpaid leave">Unpaid</span></button>
-        <button class="shift-choice" onclick="setShift('annual leave')"><span class="swatch bg-annual"></span><span data-s="annual leave">Annual</span></button>
-        <button class="shift-choice" onclick="setShift('training')"><span class="swatch bg-training"></span><span data-s="training">Training</span></button>
+        <button class="shift-choice" onclick="setShift('unpaid leave')"><span class="swatch bg-unpaid"></span><span data-s="unpaid leave">无薪假</span></button>
+        <button class="shift-choice" onclick="setShift('annual leave')"><span class="swatch bg-annual"></span><span data-s="annual leave">年假</span></button>
+        <button class="shift-choice" onclick="setShift('training')"><span class="swatch bg-training"></span><span data-s="training">培训</span></button>
       </div>
     </div>
 
     <div class="card glass" id="managerDashboard">
-      <div class="card-title"><span id="summaryCardTitle">Monthly Summary</span></div>
+      <div class="card-title"><span id="summaryCardTitle">每月排班统计</span></div>
       <div id="todayAllStaff" style="font-size:0.78rem;margin-bottom:10px;padding:10px;border-radius:14px;background:var(--surface-soft);border:1px solid var(--surface-border);"></div>
       <div class="stats-grid" id="monthlyStatsGrid"></div>
     </div>
@@ -615,15 +613,15 @@
 
   <div class="container hidden" id="tab-stock">
     <div class="card glass">
-      <div class="card-title"><span id="sheetCardTitle">Google Sheets Sync</span></div>
+      <div class="card-title"><span id="sheetCardTitle">Google Sheets 同步</span></div>
       <div class="row">
         <input type="url" id="sheetUrlInput" placeholder="Google Apps Script URL" />
-        <button class="primary" onclick="saveSheetUrl()" id="saveSheetBtn">Save</button>
+        <button class="primary" onclick="saveSheetUrl()" id="saveSheetBtn">保存</button>
       </div>
       <div class="row" style="margin-bottom:0;">
-        <button style="flex:1;font-weight:700;" onclick="pullFromSheet()" id="pullSheetBtn">⬇️ Pull Stock</button>
+        <button style="flex:1;font-weight:700;" onclick="pullFromSheet()" id="pullSheetBtn">⬇️ 拉取库存</button>
         <select id="stockCatFilter" onchange="renderStocks()" style="max-width:130px;">
-          <option value="ALL">ALL</option>
+          <option value="ALL" id="catAllOpt">全部</option>
           <option value="Phone">Phone</option>
           <option value="Accessory">Accessory</option>
         </select>
@@ -632,38 +630,38 @@
     </div>
 
     <div class="card glass">
-      <div class="card-title"><span id="stockListTitle">Stock List</span></div>
-      <input type="text" id="stockSearchInput" oninput="renderStocks()" placeholder="Search model / color..." style="width:100%;margin-bottom:12px;" />
+      <div class="card-title"><span id="stockListTitle">库存清单</span></div>
+      <input type="text" id="stockSearchInput" oninput="renderStocks()" placeholder="型号 / 颜色..." style="width:100%;margin-bottom:12px;" />
       <div id="stockList"></div>
     </div>
   </div>
 
   <div class="container hidden" id="tab-settings">
     <div class="card glass">
-      <div class="card-title"><span id="accSettingTitle">Account & Google Sign-In</span></div>
+      <div class="card-title"><span id="accSettingTitle">账号与 Google 登录</span></div>
       <div class="row">
-        <input type="text" id="accDisplayName" placeholder="Display Name" />
-        <input type="email" id="accGoogleEmail" placeholder="Google Email (e.g. name@gmail.com)" />
+        <input type="text" id="accDisplayName" placeholder="显示名称" />
+        <input type="email" id="accGoogleEmail" placeholder="Google 邮箱 (name@gmail.com)" />
       </div>
       <div class="row" style="margin-bottom:0;">
-        <button class="primary" onclick="saveAccountProfile()" id="saveAccBtn">Save Account</button>
-        <button onclick="quickGoogleBind()" id="googleBindBtn">G Quick Fill Google</button>
+        <button class="primary" onclick="saveAccountProfile()" id="saveAccBtn">保存账号</button>
+        <button onclick="quickGoogleBind()" id="googleBindBtn">G 快速填入 Google</button>
       </div>
       <p class="hint" id="accStatusText">-</p>
     </div>
 
     <div class="card glass">
-      <div class="card-title"><span id="a11yTitle">Accessibility</span></div>
+      <div class="card-title"><span id="a11yTitle">无障碍设置</span></div>
       <div class="setting-item">
         <div>
-          <div class="setting-label" id="btnOpacityLabel">Button Opacity</div>
+          <div class="setting-label" id="btnOpacityLabel">按键透明度</div>
           <div class="setting-desc" id="btnOpacityVal">100%</div>
         </div>
         <input type="range" min="40" max="100" step="5" id="btnOpacityRange" oninput="updateAccessibility()" style="width:140px;" />
       </div>
       <div class="setting-item">
         <div>
-          <div class="setting-label" id="fontScaleLabel">Font Size</div>
+          <div class="setting-label" id="fontScaleLabel">字体大小</div>
           <div class="setting-desc" id="fontScaleVal">100%</div>
         </div>
         <input type="range" min="85" max="130" step="5" id="fontScaleRange" oninput="updateAccessibility()" style="width:140px;" />
@@ -671,33 +669,34 @@
     </div>
 
     <div class="card glass">
-      <div class="card-title"><span id="langAndUpdateTitle">Language & Update</span></div>
+      <div class="card-title"><span id="langAndUpdateTitle">语言与更新</span></div>
       <div class="setting-item">
         <div>
-          <div class="setting-label" id="langLabel">Language</div>
-          <div class="setting-desc">English / Bahasa Melayu</div>
+          <div class="setting-label" id="langLabel">语言</div>
+          <div class="setting-desc" id="langDesc">简体中文 / English / Bahasa Melayu</div>
         </div>
         <select id="langSelect" onchange="changeLanguage(this.value)">
+          <option value="zh">简体中文</option>
           <option value="en">English</option>
           <option value="ms">Bahasa Melayu</option>
         </select>
       </div>
       <div class="setting-item">
         <div>
-          <div class="setting-label" id="checkUpdateLabel">Check for Updates</div>
-          <div class="setting-desc" id="checkUpdateDesc">Reload latest web version without reinstalling APK</div>
+          <div class="setting-label" id="checkUpdateLabel">检查更新</div>
+          <div class="setting-desc" id="checkUpdateDesc">刷新最新网页版本，无需重新安装 APK</div>
         </div>
-        <button class="primary" onclick="updateNow()" id="checkUpdateBtn">Check Update</button>
+        <button class="primary" onclick="updateNow()" id="checkUpdateBtn">检查更新</button>
       </div>
     </div>
 
     <div class="card glass">
-      <div class="card-title"><span id="qrCardTitle">App Download QR Code</span></div>
+      <div class="card-title"><span id="qrCardTitle">App 下载二维码</span></div>
       <div class="row">
-        <input type="url" id="apkDownloadUrlInput" placeholder="Paste direct APK download link" />
-        <button class="primary" onclick="generateDownloadQr()" id="genQrBtn">Generate QR</button>
+        <input type="url" id="apkDownloadUrlInput" placeholder="输入 APK 下载链接 (https://...)" />
+        <button class="primary" onclick="generateDownloadQr()" id="genQrBtn">生成二维码</button>
       </div>
-      <p class="hint" id="qrHintText">Upload your APK to GitHub Releases or cloud storage and paste the direct link here.</p>
+      <p class="hint" id="qrHintText">把 APK 上传到 GitHub Releases 或云盘后，把直链贴在这里生成二维码。</p>
       <div class="qr-box hidden" id="qrResultBox">
         <img id="qrImg" alt="Download QR" />
         <span id="qrLinkCaption" style="font-size:0.72rem;word-break:break-all;text-align:center;"></span>
@@ -709,25 +708,75 @@
     <nav class="tab-bar" id="glassTabBar">
       <div class="tab-indicator" id="tabIndicator"></div>
       <button class="tab-btn active" data-tab="schedule" data-index="0" onclick="switchTab('schedule', 0, this)">
-        <span class="icon">📅</span><span id="navSchedule">Schedule</span>
+        <span class="icon">📅</span><span id="navSchedule">时间表</span>
       </button>
       <button class="tab-btn" data-tab="stock" data-index="1" onclick="switchTab('stock', 1, this)">
         <span class="icon">📦</span><span id="navStock">Stock</span>
       </button>
       <button class="tab-btn" data-tab="settings" data-index="2" onclick="switchTab('settings', 2, this)">
-        <span class="icon">⚙️</span><span id="navSettings">Settings</span>
+        <span class="icon">⚙️</span><span id="navSettings">设置</span>
       </button>
     </nav>
   </div>
 
   <script>
     const I18N = {
+      zh: {
+        headerTitle: "🏪 Vivo 门店管理",
+        splashSub: "正在启动门店工作台...",
+        navSchedule: "时间表",
+        navStock: "Stock",
+        navSettings: "设置",
+        weekdays: ["日", "一", "二", "三", "四", "五", "六"],
+        staffCardTitle: "人员名字设置",
+        saveNamesBtn: "保存",
+        lblName0: "店长",
+        lblName1: "员工 1",
+        lblName2: "员工 2",
+        lblName3: "员工 3",
+        shiftCardTitle: "选择班次",
+        clearShiftBtn: "清除",
+        summaryCardTitle: "每月排班统计",
+        sheetCardTitle: "Google Sheets 同步",
+        saveSheetBtn: "保存",
+        pullSheetBtn: "⬇️ 拉取库存",
+        catAllOpt: "全部",
+        stockListTitle: "库存清单",
+        searchPlaceholder: "型号 / 颜色...",
+        accSettingTitle: "账号与 Google 登录",
+        saveAccBtn: "保存账号",
+        googleBindBtn: "G 快速填入 Google",
+        a11yTitle: "无障碍设置",
+        btnOpacityLabel: "按键透明度",
+        fontScaleLabel: "字体大小",
+        langAndUpdateTitle: "语言与更新",
+        langLabel: "语言",
+        langDesc: "简体中文 / English / Bahasa Melayu",
+        checkUpdateLabel: "检查更新",
+        checkUpdateDesc: "刷新最新网页版本，无需重新安装 APK",
+        checkUpdateBtn: "检查更新",
+        qrCardTitle: "App 下载二维码",
+        genQrBtn: "生成二维码",
+        qrHintText: "把 APK 上传到 GitHub Releases 或云盘后，把直链贴在这里生成二维码。",
+        btnReturn: "退货",
+        btnAdd: "加1",
+        btnMinus: "减1",
+        shifts: {
+          "早班": "早班",
+          "晚班": "晚班",
+          "offday": "Offday",
+          "unpaid leave": "无薪假",
+          "annual leave": "年假",
+          "training": "培训"
+        }
+      },
       en: {
         headerTitle: "🏪 Vivo Store",
         splashSub: "Starting store workspace...",
         navSchedule: "Schedule",
         navStock: "Stock",
         navSettings: "Settings",
+        weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
         staffCardTitle: "Staff Names",
         saveNamesBtn: "Save",
         lblName0: "Manager",
@@ -740,7 +789,9 @@
         sheetCardTitle: "Google Sheets Sync",
         saveSheetBtn: "Save",
         pullSheetBtn: "⬇️ Pull Stock",
+        catAllOpt: "ALL",
         stockListTitle: "Stock List",
+        searchPlaceholder: "Search model / color...",
         accSettingTitle: "Account & Google Sign-In",
         saveAccBtn: "Save Account",
         googleBindBtn: "G Quick Fill Google",
@@ -749,12 +800,16 @@
         fontScaleLabel: "Font Size",
         langAndUpdateTitle: "Language & Update",
         langLabel: "Language",
+        langDesc: "简体中文 / English / Bahasa Melayu",
         checkUpdateLabel: "Check for Updates",
         checkUpdateDesc: "Reload latest web version without reinstalling APK",
         checkUpdateBtn: "Check Update",
         qrCardTitle: "App Download QR Code",
         genQrBtn: "Generate QR",
         qrHintText: "Upload your APK to GitHub Releases or cloud storage and paste the direct link here.",
+        btnReturn: "Return",
+        btnAdd: "+1",
+        btnMinus: "-1",
         shifts: {
           "早班": "Morning",
           "晚班": "Evening",
@@ -770,6 +825,7 @@
         navSchedule: "Jadual",
         navStock: "Stok",
         navSettings: "Tetapan",
+        weekdays: ["Aha", "Isn", "Sel", "Rab", "Kha", "Jum", "Sab"],
         staffCardTitle: "Nama Staf",
         saveNamesBtn: "Simpan",
         lblName0: "Pengurus",
@@ -782,7 +838,9 @@
         sheetCardTitle: "Segerak Google Sheets",
         saveSheetBtn: "Simpan",
         pullSheetBtn: "⬇️ Tarik Stok",
+        catAllOpt: "SEMUA",
         stockListTitle: "Senarai Stok",
+        searchPlaceholder: "Cari model / warna...",
         accSettingTitle: "Akaun & Log Masuk Google",
         saveAccBtn: "Simpan Akaun",
         googleBindBtn: "G Isi Pantas Google",
@@ -791,12 +849,16 @@
         fontScaleLabel: "Saiz Fon",
         langAndUpdateTitle: "Bahasa & Kemas Kini",
         langLabel: "Bahasa",
+        langDesc: "简体中文 / English / Bahasa Melayu",
         checkUpdateLabel: "Semak Kemas Kini",
         checkUpdateDesc: "Muat semula versi web terkini tanpa pasang semula APK",
         checkUpdateBtn: "Semak Kini",
         qrCardTitle: "Kod QR Muat Turun App",
         genQrBtn: "Jana QR",
         qrHintText: "Muat naik APK ke GitHub Releases atau storan awan dan tampal pautan terus di sini.",
+        btnReturn: "Pulang",
+        btnAdd: "+1",
+        btnMinus: "-1",
         shifts: {
           "早班": "Pagi",
           "晚班": "Malam",
@@ -813,21 +875,22 @@
     const todayStr = new Date().toISOString().slice(0, 10);
 
     const themeModes = ["auto", "light", "dark"];
-    const themeLabels = { auto: "🖥️ Auto", light: "☀️ Light", dark: "🌙 Dark" };
+    const themeLabels = { auto: "🖥️ 自动", light: "☀️ 浅色", dark: "🌙 深色" };
     let currentThemeMode = localStorage.getItem(THEME_KEY) || "auto";
     const systemDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     let data = JSON.parse(localStorage.getItem(KEY)) || {
-      lang: "en",
-      users: ["Manager", "Staff 1", "Staff 2", "Staff 3"],
+      lang: "zh",
+      users: ["店长", "员工 1", "员工 2", "员工 3"],
       activeUser: 0,
       shifts: {},
       sheetUrl: "https://script.google.com/macros/s/AKfycbwKrZdVpaIM-aPyLsD08hzVbzxxteBIEecvCi/exec",
       stocks: [],
-      profile: { name: "Manager", email: "" },
+      profile: { name: "店长", email: "" },
       accessibility: { btnOpacity: 100, fontScale: 100 },
       apkUrl: ""
     };
+    if (!I18N[data.lang]) data.lang = "zh";
 
     function saveData() {
       localStorage.setItem(KEY, JSON.stringify(data));
@@ -854,8 +917,8 @@
     });
 
     function applyLanguage() {
-      const t = I18N[data.lang] || I18N.en;
-      document.documentElement.lang = data.lang;
+      const t = I18N[data.lang] || I18N.zh;
+      document.documentElement.lang = data.lang === "zh" ? "zh-CN" : data.lang;
       document.getElementById("appHeaderTitle").textContent = t.headerTitle;
       document.getElementById("splashSub").textContent = t.splashSub;
       document.getElementById("navSchedule").textContent = t.navSchedule;
@@ -873,7 +936,9 @@
       document.getElementById("sheetCardTitle").textContent = t.sheetCardTitle;
       document.getElementById("saveSheetBtn").textContent = t.saveSheetBtn;
       document.getElementById("pullSheetBtn").textContent = t.pullSheetBtn;
+      document.getElementById("catAllOpt").textContent = t.catAllOpt;
       document.getElementById("stockListTitle").textContent = t.stockListTitle;
+      document.getElementById("stockSearchInput").placeholder = t.searchPlaceholder;
       document.getElementById("accSettingTitle").textContent = t.accSettingTitle;
       document.getElementById("saveAccBtn").textContent = t.saveAccBtn;
       document.getElementById("googleBindBtn").textContent = t.googleBindBtn;
@@ -882,12 +947,18 @@
       document.getElementById("fontScaleLabel").textContent = t.fontScaleLabel;
       document.getElementById("langAndUpdateTitle").textContent = t.langAndUpdateTitle;
       document.getElementById("langLabel").textContent = t.langLabel;
+      document.getElementById("langDesc").textContent = t.langDesc;
       document.getElementById("checkUpdateLabel").textContent = t.checkUpdateLabel;
       document.getElementById("checkUpdateDesc").textContent = t.checkUpdateDesc;
       document.getElementById("checkUpdateBtn").textContent = t.checkUpdateBtn;
       document.getElementById("qrCardTitle").textContent = t.qrCardTitle;
       document.getElementById("genQrBtn").textContent = t.genQrBtn;
       document.getElementById("qrHintText").textContent = t.qrHintText;
+
+      document.querySelectorAll(".cal-weekdays div[data-w]").forEach(el => {
+        const idx = Number(el.getAttribute("data-w"));
+        if (t.weekdays[idx]) el.textContent = t.weekdays[idx];
+      });
 
       document.querySelectorAll(".shift-choice span[data-s]").forEach(el => {
         const key = el.getAttribute("data-s");
@@ -898,10 +969,12 @@
       if (langSel) langSel.value = data.lang;
       renderAccounts();
       renderCalendar();
+      renderStocks();
       renderAccountProfile();
     }
 
     function changeLanguage(lang) {
+      if (!I18N[lang]) return;
       data.lang = lang;
       saveData();
       applyLanguage();
@@ -912,7 +985,6 @@
       window.location.replace(baseUrl + "?v=" + Date.now());
     }
 
-    // ==================== 导航栏 ====================
     const tabNames = ["schedule", "stock", "settings"];
     let currentTabIndex = 0;
 
@@ -989,7 +1061,6 @@
       bar.addEventListener("pointercancel", finishDrag);
     })();
 
-    // ==================== 排班 ====================
     let currentYear = new Date().getFullYear();
     let currentMonth = new Date().getMonth();
     let selectedDate = todayStr;
@@ -998,7 +1069,7 @@
       const bar = document.getElementById("accountBar");
       bar.innerHTML = data.users.map((u, idx) => `
         <button class="acc-btn ${data.activeUser === idx ? 'active' : ''}" onclick="selectUser(${idx})">
-          ${u || ('Staff ' + idx)}
+          ${u || ('员工 ' + idx)}
         </button>
       `).join("");
 
@@ -1022,7 +1093,7 @@
       saveData();
       renderAccounts();
       renderCalendar();
-      alert("Saved");
+      alert("已保存");
     }
 
     function shiftClass(s) {
@@ -1043,7 +1114,7 @@
     }
 
     function renderCalendar() {
-      const t = I18N[data.lang] || I18N.en;
+      const t = I18N[data.lang] || I18N.zh;
       document.getElementById("calMonthTitle").textContent = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`;
       const grid = document.getElementById("calGrid");
       const firstDay = new Date(currentYear, currentMonth, 1).getDay();
@@ -1084,7 +1155,7 @@
     }
 
     function renderSummary() {
-      const t = I18N[data.lang] || I18N.en;
+      const t = I18N[data.lang] || I18N.zh;
       const daySummary = data.users.map((u, idx) => {
         const raw = data.shifts[`${idx}_${selectedDate}`] || "";
         const lbl = raw ? (t.shifts[raw] || raw) : "-";
@@ -1107,7 +1178,6 @@
       }).join("");
     }
 
-    // ==================== Stock ====================
     const sheetInputEl = document.getElementById("sheetUrlInput");
     if (sheetInputEl) sheetInputEl.value = data.sheetUrl || "";
 
@@ -1120,6 +1190,7 @@
     function renderStocks() {
       const list = document.getElementById("stockList");
       if (!list) return;
+      const t = I18N[data.lang] || I18N.zh;
       const cat = document.getElementById("stockCatFilter")?.value || "ALL";
       const kw = (document.getElementById("stockSearchInput")?.value || "").trim().toLowerCase();
 
@@ -1132,7 +1203,7 @@
       });
 
       if (!filtered.length) {
-        list.innerHTML = `<p class="hint">No items</p>`;
+        list.innerHTML = `<p class="hint">-</p>`;
         return;
       }
 
@@ -1158,9 +1229,9 @@
               </div>
             </div>
             <div class="qty-controls">
-              <button class="btn-return" onclick="handleStockAction(${realIdx}, 'return')">Return</button>
-              <button class="btn-in" onclick="handleStockAction(${realIdx}, 'add')">+1</button>
-              <button class="btn-sell" onclick="handleStockAction(${realIdx}, 'minus')">-1</button>
+              <button class="btn-return" onclick="handleStockAction(${realIdx}, 'return')">${t.btnReturn}</button>
+              <button class="btn-in" onclick="handleStockAction(${realIdx}, 'add')">${t.btnAdd}</button>
+              <button class="btn-sell" onclick="handleStockAction(${realIdx}, 'minus')">${t.btnMinus}</button>
             </div>
           </div>
         `;
@@ -1245,18 +1316,17 @@
         })).filter(it => it.model && it.row > 0);
         saveData();
         renderStocks();
-        msg.textContent = `${data.stocks.length} items (${new Date().toLocaleTimeString()})`;
+        msg.textContent = `${data.stocks.length} (${new Date().toLocaleTimeString()})`;
       } catch (e) {
         msg.textContent = e.message;
       }
     }
 
-    // ==================== 设置：账号、无障碍、二维码 ====================
     function renderAccountProfile() {
       const p = data.profile || { name: "", email: "" };
       document.getElementById("accDisplayName").value = p.name || "";
       document.getElementById("accGoogleEmail").value = p.email || "";
-      document.getElementById("accStatusText").textContent = p.email ? `${p.name || "User"} (${p.email})` : (p.name || "-");
+      document.getElementById("accStatusText").textContent = p.email ? `${p.name || ""} (${p.email})` : (p.name || "-");
     }
 
     function saveAccountProfile() {
@@ -1324,7 +1394,6 @@
     applyTheme();
     applyAccessibility();
     applyLanguage();
-    renderStocks();
     renderSavedQr();
     if (data.sheetUrl) pullFromSheet();
 
