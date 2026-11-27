@@ -103,7 +103,10 @@
       transition: background-color 0.25s ease, color 0.25s ease;
     }
 
-    /* 液态玻璃面板 */
+ body {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 14px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+} 
     .glass {
       background: var(--glass-bg);
       backdrop-filter: blur(26px) saturate(180%);
@@ -594,7 +597,7 @@
 
     <div class="card glass">
       <div class="card-title">
-        <span>👤 人员名字设置（店长 + 3名员工）</span>
+        <span> 人员名字设置（店长 + 3名员工）</span>
         <button class="primary" style="padding:5px 10px;font-size:12px;" onclick="saveNames()">保存名字</button>
       </div>
       <div class="name-grid">
@@ -619,7 +622,7 @@
 
     <div class="card glass">
       <div class="card-title">
-        <span>🕒 选择班次</span>
+        <span> 选择班次</span>
         <button style="padding:4px 8px;font-size:11px;" onclick="setShift('')">清除当天</button>
       </div>
       <div class="shift-options">
@@ -634,7 +637,7 @@
 
     <div class="card glass" id="managerDashboard">
       <div class="card-title">
-        <span>📊 店长总览（全店排班与工时统计）</span>
+        <span> 店长总览（全店排班与工时统计）</span>
       </div>
       <div id="todayAllStaff" style="font-size:12px;margin-bottom:10px;padding:10px;border-radius:14px;background:var(--surface-soft);border:1px solid var(--surface-border);"></div>
       <div class="stats-grid" id="monthlyStatsGrid"></div>
@@ -683,23 +686,34 @@
     <nav class="tab-bar" id="glassTabBar">
       <div class="tab-indicator" id="tabIndicator"></div>
       <button class="tab-btn active" data-tab="schedule" data-index="0" onclick="switchTab('schedule', 0, this)">
-        <span class="icon">📅</span><span>时间表</span>
+        <span class="icon"></span><span>时间表</span>
       </button>
       <button class="tab-btn" data-tab="stock" data-index="1" onclick="switchTab('stock', 1, this)">
-        <span class="icon">📦</span><span>Stock</span>
+        <span class="icon"></span><span>Stock</span>
       </button>
       <button class="tab-btn" data-tab="cctv" data-index="2" onclick="switchTab('cctv', 2, this)">
-        <span class="icon">📷</span><span>CCTV</span>
+        <span class="icon"></span><span>CCTV</span>
       </button>
     </nav>
   </div>
 
+  <button onclick="updateNow()" style="margin: 12px; padding: 10px 16px; border-radius: 10px; background: #2563eb; color: #fff; border: none;">
+    检查更新
+  </button>
+
+  <script>
+    function updateNow() {
+      const baseUrl = window.location.href.split("?")[0];
+      window.location.replace(baseUrl + "?v=" + Date.now());
+    }
+  </script>
+</body>
+  
   <script>
     const KEY = "store_liquid_v4";
     const THEME_KEY = "store_liquid_theme";
     const todayStr = new Date().toISOString().slice(0, 10);
 
-    // ==================== 浅色 / 深色 / 跟随手机主题切换 ====================
     const themeModes = ["auto", "light", "dark"];
     const themeLabels = { auto: "🖥️ 自动", light: "☀️ 浅色", dark: "🌙 深色" };
     let currentThemeMode = localStorage.getItem(THEME_KEY) || "auto";
